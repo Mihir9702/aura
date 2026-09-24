@@ -503,6 +503,40 @@ def test_concurrent_claims_leave_the_reserved_slot_free(db):
         assert s.scalar(running) == 3
 
 
+def test_a_claim_waits_for_a_concurrent_claim_before_counting_capacity(db):
+    clock = ManualClock()
+    registry = Registry([RESEARCH])
+    for n in range(2):
+        enqueue(db, registry, clock, RESEARCH.kind, f"research-{n}")
+    capacity = Capacity(slots=2, safety_reserved=1)  # a single unreserved slot
+
+    def claim(session, worker: str):
+        return jobs.claim(
+            session,
+            kinds=registry.kinds(),
+            worker=worker,
+            capacity=capacity,
+            lease=FIXTURE_LEASE,
+            at=clock(),
+        )
+
+    def second_claim():
+        with db.transaction() as s:
+            return claim(s, "second")
+
+    first = db.sessions()
+    try:
+        assert claim(first, "first") is not None  # leased, not yet committed
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            second = pool.submit(second_claim)
+            time.sleep(0.5)
+            assert not second.done()  # it waits rather than counting around the open claim
+            first.commit()
+            assert second.result(timeout=10) is None  # the unreserved slot is now leased
+    finally:
+        first.close()
+
+
 @pytest.mark.parametrize("control", ["full_kill", "entry_halt"])
 def test_capability_controls_do_not_stop_safety_jobs(db, control):
     clock = ManualClock()
