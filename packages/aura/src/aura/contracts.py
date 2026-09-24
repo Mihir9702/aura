@@ -4,6 +4,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from aura.orchestration.jobs import JobState, WorkClass
+
 
 class Contract(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -85,3 +87,41 @@ class EventRecord(Contract):
     payload: dict[str, Any]
     recorded_at: str
     schema_version: int
+
+
+class JobRecord(Contract):
+    """A durable job. Dead letters are jobs in state DEAD; a redrive keeps id and keys."""
+
+    id: str
+    kind: str
+    job_class: WorkClass
+    scope: str
+    occurrence_key: str
+    correlation_id: str
+    payload: dict[str, Any]
+    input_version: int | None
+    priority: int
+    state: JobState
+    version: int
+    attempts: int
+    max_attempts: int
+    redrives: int
+    fencing_token: int
+    lease_owner: str | None
+    lease_expires_at: str | None
+    scheduled_at: str
+    available_at: str
+    deadline: str | None
+    terminal_reason: str | None
+    last_error: str | None
+    result: dict[str, Any] | None
+    created_at: str
+    updated_at: str
+    finished_at: str | None
+
+
+class JobCommandResult(Contract):
+    """The job's version after an audited command, or the recorded one on replay."""
+
+    job_id: str
+    version: int
