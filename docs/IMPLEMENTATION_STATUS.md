@@ -6,6 +6,15 @@ The owner authorized implementation. This run delivers the first runnable M0/M1 
 
 **Resumed 2026-09-23.** The owner resumed implementation the same day for a pass that uses a synthetic fixture market-data source, with no vendor. Paper-only execution and Observe as the only mode are unchanged. The pause note above is kept as history; the table below tracks the resumed pass.
 
+**Paused again 2026-09-23, end of day, at a green checkpoint.** The owner stopped the pass after these slices merged into branch `implementation-pass`:
+- the parallel-safe test harness and API routers
+- the web module split with Vitest
+- the synthetic fixture dataset
+- the market-data port and fixture replay provider
+- durable jobs
+
+At the pause, Ruff, strict mypy, 89 unit tests, 14 web tests, the production build, 33 PostgreSQL integration tests and the contract drift check all passed. Unmerged work waits on its own branches: `impl/s04` (strategy scopes, committed, final checks not yet run), `impl/s05` (execution receipts, partial), `impl/s07` (data store, early and uncommitted) and `impl/s08` (feature engine, nearly done but uncommitted). The owner decisions recorded in [chapter 18](design-bible/18-owner-decisions.md#implementation-pass-decisions-2026-09-23) still apply.
+
 | Area | Implemented | Remaining |
 |---|---|---|
 | Runtime | Python 3.12/uv, FastAPI, SQLAlchemy/Alembic, PostgreSQL 17; React/TS/Vite/Tailwind; lockfiles; Windows scripts; parallel-safe integration databases (see [test harness](#test-harness)) | Hosted auth/runtime, CI, production privileges |
@@ -51,3 +60,12 @@ Conflicting identities, out-of-bound fixture fills and oversells raise an error 
 ## Next slice
 
 Persist version/horizon-specific qualification and admission races; build durable receipt/quarantine/replay, policy-configured accounting corrections and substantive scheduler consumers. Before real Observe analysis choose an approved data/strategy slice. Active-paper entries require actual qualification/activation and unresolved exit/risk/accounting/adapter policies. Vendors, model names, prices, budgets and final numeric limits remain open.
+
+To resume the synthetic-fixture pass, finish and merge the four open branches, then continue in dependency order. Migrations from parallel branches must be re-chained onto the integration head at merge.
+
+1. Finish the open branches: S04 strategy scopes, S05 execution receipts, S07 Parquet/DuckDB data store, S08 feature snapshots.
+2. S09 Strategy Pods page on persisted scopes; S10 ledger corrections and rebuild; S11 health gates and the System health page.
+3. S12 market data page and replay clock; S13 regime components; S14 scanner and candidates.
+4. S15 deterministic SHADOW simulator with fault injection; S16 Knowledge Library v0; S17 the Observe cycle and a Discovery page.
+5. The owner-approved gated slices: G1, the Swing Trend Pod in DEVELOPMENT; G2, Full Kill re-arm.
+6. S21 final docs: README counts, `ARCHITECTURE_STATUS` and diagram 20.
