@@ -18,36 +18,14 @@ from aura.ledger import (
     reserve_fixture,
     snapshot,
 )
-from aura.operations import change_control, locked_gate
-from aura.storage import Database
+from aura.operations import change_control
 from fastapi.testclient import TestClient
 from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError
 
+# The shared `db` fixture in tests/conftest.py truncates every public table except
+# alembic_version, then re-seeds the global gate and the challenge/fixture funding.
 pytestmark = pytest.mark.integration
-
-
-@pytest.fixture
-def db():
-    url = os.environ.get("AURA_TEST_DATABASE_URL")
-    if not url:
-        pytest.skip("Dedicated test database required; scripts/test-integration.ps1")
-    if not url.endswith("/aura_test"):
-        raise RuntimeError("Refusing to reset anything except dedicated aura_test database")
-    database = Database(url)
-    with database.transaction() as s:
-        s.execute(
-            text(
-                "TRUNCATE owner_sessions, inbox, outbox, postings, journals, lots, "
-                "fixture_orders, portfolios RESTART IDENTITY CASCADE"
-            )
-        )
-        gate = locked_gate(s)
-        gate.version, gate.entry_halt, gate.full_kill = 1, False, False
-        fund(s, "challenge")
-        fund(s, "fixture", environment="SHADOW")
-    yield database
-    database.engine.dispose()
 
 
 def reserve(

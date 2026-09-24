@@ -284,4 +284,4 @@ Additional ports: Strategies.evaluate(pod_version, horizon, frozen_inputs) → c
 
 ## Implemented subset — 2026-09-10
 
-[OpenAPI](../../packages/contracts/openapi.json) and generated frontend types now cover the implemented local API, including Overview and control commands. The complete trading/research contracts above remain target specifications. See [implementation status](../IMPLEMENTATION_STATUS.md) before treating any conceptual interface as implemented.
+[OpenAPI](../../packages/contracts/openapi.json) and generated frontend types now cover the implemented local API, including Overview and control commands. Since 2026-09-23 the journal and event feeds are typed as `JournalRecord` and `EventRecord`, the event feed lists the newest events first, and a unit test fails when the committed OpenAPI drifts from the application. The complete trading/research contracts above remain target specifications. See [implementation status](../IMPLEMENTATION_STATUS.md) before treating any conceptual interface as implemented.

@@ -151,6 +151,32 @@ export interface components {
             /** Full Kill */
             full_kill: boolean;
         };
+        /**
+         * EventRecord
+         * @description An outbox event. Feeds list the newest (highest sequence) first; not a cursor.
+         */
+        EventRecord: {
+            /** Sequence */
+            sequence: number;
+            /** Event Id */
+            event_id: string;
+            /** Event Type */
+            event_type: string;
+            /** Aggregate Id */
+            aggregate_id: string;
+            /** Aggregate Version */
+            aggregate_version: number;
+            /** Correlation Id */
+            correlation_id: string;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Recorded At */
+            recorded_at: string;
+            /** Schema Version */
+            schema_version: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -165,6 +191,20 @@ export interface components {
              * @constant
              */
             status: "NOT_CONFIGURED";
+        };
+        /**
+         * JournalRecord
+         * @description A committed Ledger journal of the challenge portfolio.
+         */
+        JournalRecord: {
+            /** Id */
+            id: string;
+            /** Source */
+            source: string;
+            /** Facts */
+            facts: {
+                [key: string]: unknown;
+            };
         };
         /** Login */
         Login: {
@@ -403,9 +443,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    }[];
+                    "application/json": components["schemas"]["JournalRecord"][];
                 };
             };
         };
@@ -425,9 +463,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    }[];
+                    "application/json": components["schemas"]["EventRecord"][];
                 };
             };
         };

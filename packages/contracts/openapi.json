@@ -118,8 +118,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/JournalRecord"
                   },
                   "type": "array",
                   "title": "Response Journals Api Journals Get"
@@ -141,8 +140,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/EventRecord"
                   },
                   "type": "array",
                   "title": "Response Events Api Events Get"
@@ -280,6 +278,62 @@
         ],
         "title": "Controls"
       },
+      "EventRecord": {
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "aggregate_id": {
+            "type": "string",
+            "title": "Aggregate Id"
+          },
+          "aggregate_version": {
+            "type": "integer",
+            "title": "Aggregate Version"
+          },
+          "correlation_id": {
+            "type": "string",
+            "title": "Correlation Id"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "recorded_at": {
+            "type": "string",
+            "title": "Recorded At"
+          },
+          "schema_version": {
+            "type": "integer",
+            "title": "Schema Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sequence",
+          "event_id",
+          "event_type",
+          "aggregate_id",
+          "aggregate_version",
+          "correlation_id",
+          "payload",
+          "recorded_at",
+          "schema_version"
+        ],
+        "title": "EventRecord",
+        "description": "An outbox event. Feeds list the newest (highest sequence) first; not a cursor."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -312,6 +366,32 @@
           "status"
         ],
         "title": "Integration"
+      },
+      "JournalRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "facts": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Facts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "facts"
+        ],
+        "title": "JournalRecord",
+        "description": "A committed Ledger journal of the challenge portfolio."
       },
       "Login": {
         "properties": {

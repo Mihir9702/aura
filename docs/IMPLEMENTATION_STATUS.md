@@ -4,19 +4,30 @@ The owner authorized implementation. This run delivers the first runnable M0/M1 
 
 **Paused 2026-09-23.** The owner stopped development and prepared the repository for public release as a personal project. The table below is the final state. "Next slice" records what would follow if work resumed. Re-verified that day: Ruff, strict mypy, 13 domain tests, 11 PostgreSQL integration tests and the production web build passed. The browser suite was not re-run.
 
+**Resumed 2026-09-23.** The owner resumed implementation the same day for a pass that uses a synthetic fixture market-data source, with no vendor. Paper-only execution and Observe as the only mode are unchanged. The pause note above is kept as history; the table below tracks the resumed pass.
+
 | Area | Implemented | Remaining |
 |---|---|---|
-| Runtime | Python 3.12/uv, FastAPI, SQLAlchemy/Alembic, PostgreSQL 17; React/TS/Vite/Tailwind; lockfiles; Windows scripts | Hosted auth/runtime, CI, production privileges |
+| Runtime | Python 3.12/uv, FastAPI, SQLAlchemy/Alembic, PostgreSQL 17; React/TS/Vite/Tailwind; lockfiles; Windows scripts; parallel-safe integration databases (see [test harness](#test-harness)) | Hosted auth/runtime, CI, production privileges |
 | Local security | Random owner key, hashed session tokens/expiry/revocation, HttpOnly SameSite cookie, command/origin checks, loopback, basic login throttling | Hosted HTTPS/Secure cookies, shared throttling/hardening |
 | Ledger | $500 funding, balanced immutable transaction-sealed journals, decimal primitives | Production settlement/fee/lot policies; corrections/rebuild/corporate actions |
 | Fixture execution | SHADOW-only reservations/fractional FIFO fills; duplicate/conflicting IDs; unknown state retains capacity; no blind resubmit | Real simulator/adapter, durable receipt quarantine, full cancel/reconnect semantics |
 | Controls | Persistent Entry Halt/Full Kill, expected-version/idempotent owner commands, audit; pure health-gate function | Real probes, automatic trigger policy, cancellation delivery, verified human re-arm |
 | Risk/strategy/regime | Capacity sizing, five unimplemented registry entries, lifecycle and temporal validators | Full risk rules, numeric profiles, persistent scoped qualification/activation, methodologies and regime computation |
-| Events | Outbox/inbox acknowledgement with commit-order-gap test | Scheduler, substantive consumers, dead-letter/redrive, operational SLIs |
-| UI/contracts | Authenticated overview, Ledger records, readiness and controls; hash-linked pages; SSE/refetch; generated Overview schema/types; decimal money display without float conversion; Vitest units for formatting and routes | Full proposal/Committee/order/report/research flows; ADIYA-informed refinement |
+| Events | Outbox/inbox acknowledgement with commit-order-gap test; event feed returns the newest 100 events, newest first | Scheduler, substantive consumers, dead-letter/redrive, operational SLIs |
+| UI/contracts | Authenticated overview, Ledger records, readiness and controls; hash-linked pages; SSE/refetch; API routes split into `aura.routes` routers; generated Overview, JournalRecord and EventRecord schemas/types with an OpenAPI drift test; decimal money display without float conversion; Vitest units for formatting and routes; activity panel shows the newest five events | Full proposal/Committee/order/report/research flows; ADIYA-informed refinement |
 | Research/knowledge | Explicit unavailable states and architectural specifications | Backtesting, League metrics, corpus/retrieval, prospective strategy evaluation |
 
+## Test harness
+
+- `scripts/test-integration.ps1` migrates and tests a dedicated loopback database named by `AURA_TEST_DATABASE_NAME` (default `aura_test`; it must match `aura_test(_[a-z0-9]+)?`, so the development database `aura` can never be selected). Worktrees sharing the PostgreSQL cluster on port 55432 can run integration tests at the same time with different names, for example `$env:AURA_TEST_DATABASE_NAME = 'aura_test_s00'`. `-Fresh` drops and recreates that database before migrating.
+- The shared `db` fixture in `tests/conftest.py` truncates every public table except `alembic_version`, then re-seeds the global gate and the challenge and SHADOW fixture funding. Integration tests use it instead of their own TRUNCATE lists and are marked `integration`.
+- Unit tests guard repository invariants: Alembic has a single head; `app.openapi()` equals the committed `packages/contracts/openapi.json` (regenerate with `scripts/contracts.ps1`); every route except `GET /api/health` and `POST /api/session` requires the owner session.
+- `scripts/backup_restore_check.py` checks the restored database against Alembic's head rather than a fixed revision.
+
 ## Verified
+
+Harness slice (2026-09-23): Ruff, strict mypy, 16 unit tests (13 domain, 3 repository guards) and the production web build passed. 13 PostgreSQL integration tests passed on `aura_test`, again with `-Fresh`, on `aura_test_s00`, and as two concurrent runs on different names. The restore drill verified migration 0002 as read from Alembic. 45 API requests matched the previous single-file app on status, headers, cookies and bodies; the only differences were the two `/api/events` responses, which now list events in reverse (newest-first) order. The browser suite was not run.
 
 Local startup correction (2026-09-11): root `npm run dev` now starts PostgreSQL, waits for API/database readiness, and launches worker and web. Previously it launched only Vite, causing refused API connections at sign-in. Frontend-only startup is now explicitly `dev:web`; non-JSON proxy failures display recovery guidance.
 
