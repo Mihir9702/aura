@@ -82,7 +82,19 @@ export const pages: readonly PageDefinition[] = [
   },
 ];
 
-/** Looks up a page by id. Unknown ids get the Overview. */
-export function findPage(id: string): PageDefinition {
+/** The link to a page, for example "#/portfolio". */
+export function hashFor(page: PageId): string {
+  return "#/" + page;
+}
+
+/**
+ * Maps a location hash such as "#/portfolio" to its page. Letter case and a
+ * trailing slash are ignored. An empty or unknown hash shows the Overview.
+ */
+export function pageFromHash(hash: string): PageDefinition {
+  const id = hash
+    .replace(/^#?\/?/, "")
+    .replace(/\/$/, "")
+    .toLowerCase();
   return pages.find((page) => page.id === id) ?? pages[0];
 }

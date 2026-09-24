@@ -7,7 +7,13 @@ import {
   Shield,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type FormEvent,
+} from "react";
 import { Badge } from "../components/Badge";
 import {
   api,
@@ -16,13 +22,24 @@ import {
   type Journal,
   type Overview,
 } from "../lib/api";
-import { findPage, pages, type PageId } from "./pages";
+import { hashFor, pageFromHash, pages, type PageId } from "./pages";
+
+// The current page lives in the URL hash, so every page is linkable and the
+// browser's back and forward buttons move between pages.
+function subscribeToHash(onChange: () => void) {
+  window.addEventListener("hashchange", onChange);
+  return () => window.removeEventListener("hashchange", onChange);
+}
+const readHash = () => window.location.hash;
+function navigate(page: PageId) {
+  window.location.hash = hashFor(page);
+}
 
 export function App() {
   const [data, setData] = useState<Overview | null>(null);
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [journals, setJournals] = useState<Journal[]>([]);
-  const [pageId, setPageId] = useState<PageId>("overview");
+  const page = pageFromHash(useSyncExternalStore(subscribeToHash, readHash));
   const [auth, setAuth] = useState(false);
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
@@ -172,7 +189,6 @@ export function App() {
         </div>
       </main>
     );
-  const page = findPage(pageId);
   const Page = page.component;
   return (
     <div className="app-shell">
@@ -194,7 +210,7 @@ export function App() {
             <button
               key={id}
               className={page.id === id ? "selected" : ""}
-              onClick={() => setPageId(id)}
+              onClick={() => navigate(id)}
             >
               <Icon size={18} />
               {label}
@@ -212,7 +228,7 @@ export function App() {
             Your foundation is taking shape. Trading stays off until the
             evidence is ready.
           </p>
-          <button onClick={() => setPageId("research")}>
+          <button onClick={() => navigate("research")}>
             View readiness <ArrowRight size={14} />
           </button>
         </div>
@@ -294,7 +310,7 @@ export function App() {
             data={data}
             events={events}
             journals={journals}
-            navigate={setPageId}
+            navigate={navigate}
             openControl={openControl}
           />
           <footer>
