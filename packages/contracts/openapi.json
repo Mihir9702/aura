@@ -217,6 +217,77 @@
           }
         }
       }
+    },
+    "/api/execution/quarantine": {
+      "get": {
+        "summary": "Quarantine",
+        "operationId": "quarantine_api_execution_quarantine_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QuarantineRecord"
+                  },
+                  "type": "array",
+                  "title": "Response Quarantine Api Execution Quarantine Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/execution/quarantine/{quarantine_id}/redrive": {
+      "post": {
+        "summary": "Redrive",
+        "operationId": "redrive_api_execution_quarantine__quarantine_id__redrive_post",
+        "parameters": [
+          {
+            "name": "quarantine_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Quarantine Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedriveCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedriveResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -575,6 +646,194 @@
           "cost_basis"
         ],
         "title": "Position"
+      },
+      "QuarantineRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "receipt_id": {
+            "type": "string",
+            "title": "Receipt Id"
+          },
+          "portfolio_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portfolio Id"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "CONFLICTING_DUPLICATE",
+              "UNSUPPORTED_REVISION",
+              "UNKNOWN_ACCOUNT",
+              "ORPHAN",
+              "OUT_OF_BOUNDS",
+              "LEDGER_REJECTED"
+            ],
+            "title": "Reason"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "adapter_id": {
+            "type": "string",
+            "title": "Adapter Id"
+          },
+          "adapter_account_id": {
+            "type": "string",
+            "title": "Adapter Account Id"
+          },
+          "execution_id": {
+            "type": "string",
+            "title": "Execution Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "order_id": {
+            "type": "string",
+            "title": "Order Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "receipt_id",
+          "portfolio_id",
+          "reason",
+          "detail",
+          "version",
+          "created_at",
+          "adapter_id",
+          "adapter_account_id",
+          "execution_id",
+          "revision",
+          "order_id"
+        ],
+        "title": "QuarantineRecord",
+        "description": "An open execution quarantine entry and its receipt identity (SHADOW fixtures only).\n\nA null portfolio_id means the receipt could not be attributed, which blocks new\nreservations for every portfolio. Redrive with the current version."
+      },
+      "RedriveCommand": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 4,
+            "title": "Reason"
+          },
+          "command_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Command Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "reason",
+          "command_id"
+        ],
+        "title": "RedriveCommand"
+      },
+      "RedriveResult": {
+        "properties": {
+          "quarantine_id": {
+            "type": "string",
+            "title": "Quarantine Id"
+          },
+          "receipt_id": {
+            "type": "string",
+            "title": "Receipt Id"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "APPLIED",
+              "STILL_QUARANTINED"
+            ],
+            "title": "Outcome"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "RESOLVED"
+            ],
+            "title": "Status"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "CONFLICTING_DUPLICATE",
+                  "UNSUPPORTED_REVISION",
+                  "UNKNOWN_ACCOUNT",
+                  "ORPHAN",
+                  "OUT_OF_BOUNDS",
+                  "LEDGER_REJECTED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "journal_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Journal Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quarantine_id",
+          "receipt_id",
+          "outcome",
+          "status",
+          "version",
+          "reason",
+          "journal_id"
+        ],
+        "title": "RedriveResult",
+        "description": "Outcome of a quarantine redrive. A repeated command_id returns the recorded outcome."
       },
       "RegimeReadiness": {
         "properties": {

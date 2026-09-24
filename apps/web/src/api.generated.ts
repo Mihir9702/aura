@@ -124,6 +124,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/execution/quarantine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Quarantine */
+        get: operations["quarantine_api_execution_quarantine_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/execution/quarantine/{quarantine_id}/redrive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Redrive */
+        post: operations["redrive_api_execution_quarantine__quarantine_id__redrive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -283,6 +317,80 @@ export interface components {
             quantity: string;
             /** Cost Basis */
             cost_basis: string;
+        };
+        /**
+         * QuarantineRecord
+         * @description An open execution quarantine entry and its receipt identity (SHADOW fixtures only).
+         *
+         *     A null portfolio_id means the receipt could not be attributed, which blocks new
+         *     reservations for every portfolio. Redrive with the current version.
+         */
+        QuarantineRecord: {
+            /** Id */
+            id: string;
+            /** Receipt Id */
+            receipt_id: string;
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "CONFLICTING_DUPLICATE" | "UNSUPPORTED_REVISION" | "UNKNOWN_ACCOUNT" | "ORPHAN" | "OUT_OF_BOUNDS" | "LEDGER_REJECTED";
+            /** Detail */
+            detail: string;
+            /** Version */
+            version: number;
+            /** Created At */
+            created_at: string;
+            /** Adapter Id */
+            adapter_id: string;
+            /** Adapter Account Id */
+            adapter_account_id: string;
+            /** Execution Id */
+            execution_id: string;
+            /** Revision */
+            revision: number;
+            /** Order Id */
+            order_id: string;
+        };
+        /** RedriveCommand */
+        RedriveCommand: {
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
+            /**
+             * Command Id
+             * Format: uuid
+             */
+            command_id: string;
+        };
+        /**
+         * RedriveResult
+         * @description Outcome of a quarantine redrive. A repeated command_id returns the recorded outcome.
+         */
+        RedriveResult: {
+            /** Quarantine Id */
+            quarantine_id: string;
+            /** Receipt Id */
+            receipt_id: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "APPLIED" | "STILL_QUARANTINED";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "OPEN" | "RESOLVED";
+            /** Version */
+            version: number;
+            /** Reason */
+            reason: ("CONFLICTING_DUPLICATE" | "UNSUPPORTED_REVISION" | "UNKNOWN_ACCOUNT" | "ORPHAN" | "OUT_OF_BOUNDS" | "LEDGER_REJECTED") | null;
+            /** Journal Id */
+            journal_id: string | null;
         };
         /** RegimeReadiness */
         RegimeReadiness: {
@@ -521,6 +629,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    quarantine_api_execution_quarantine_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuarantineRecord"][];
+                };
+            };
+        };
+    };
+    redrive_api_execution_quarantine__quarantine_id__redrive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quarantine_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RedriveCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedriveResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
