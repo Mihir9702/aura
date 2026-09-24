@@ -153,7 +153,7 @@ export interface components {
         };
         /**
          * EventRecord
-         * @description An outbox event. The sequence orders the feed; it is not a delivery cursor.
+         * @description An outbox event. Feeds list the newest (highest sequence) first; not a cursor.
          */
         EventRecord: {
             /** Sequence */

@@ -52,8 +52,13 @@ def emit(
 
 
 def recent(session: Session, after: int = 0) -> list[dict[str, Any]]:
+    """Up to 100 events with sequence above `after`, newest (highest sequence) first.
+
+    A display feed, not a delivery cursor: commit order can differ from sequence order,
+    so consumers track processed events in the inbox instead of paging by sequence.
+    """
     rows = session.scalars(
-        select(Event).where(Event.sequence > after).order_by(Event.sequence).limit(100)
+        select(Event).where(Event.sequence > after).order_by(Event.sequence.desc()).limit(100)
     ).all()
     return [
         {

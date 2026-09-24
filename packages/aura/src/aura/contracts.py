@@ -74,7 +74,7 @@ class JournalRecord(Contract):
 
 
 class EventRecord(Contract):
-    """An outbox event. The sequence orders the feed; it is not a delivery cursor."""
+    """An outbox event. Feeds list the newest (highest sequence) first; not a cursor."""
 
     sequence: int
     event_id: str
