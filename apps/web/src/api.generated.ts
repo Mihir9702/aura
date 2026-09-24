@@ -107,6 +107,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Jobs */
+        get: operations["list_jobs_api_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jobs/dead-letters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Dead Letters */
+        get: operations["dead_letters_api_jobs_dead_letters_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jobs/{job_id}/redrive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Redrive
+         * @description Requeue a dead letter with its identity; audited as JOB_REDRIVEN in the outbox.
+         */
+        post: operations["redrive_api_jobs__job_id__redrive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/stream": {
         parameters: {
             query?: never;
@@ -192,6 +246,81 @@ export interface components {
              */
             status: "NOT_CONFIGURED";
         };
+        /**
+         * JobCommandResult
+         * @description The job's version after an audited command, or the recorded one on replay.
+         */
+        JobCommandResult: {
+            /** Job Id */
+            job_id: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * JobRecord
+         * @description A durable job. Dead letters are jobs in state DEAD; a redrive keeps id and keys.
+         */
+        JobRecord: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            job_class: components["schemas"]["WorkClass"];
+            /** Scope */
+            scope: string;
+            /** Occurrence Key */
+            occurrence_key: string;
+            /** Correlation Id */
+            correlation_id: string;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Input Version */
+            input_version: number | null;
+            /** Priority */
+            priority: number;
+            state: components["schemas"]["JobState"];
+            /** Version */
+            version: number;
+            /** Attempts */
+            attempts: number;
+            /** Max Attempts */
+            max_attempts: number;
+            /** Redrives */
+            redrives: number;
+            /** Fencing Token */
+            fencing_token: number;
+            /** Lease Owner */
+            lease_owner: string | null;
+            /** Lease Expires At */
+            lease_expires_at: string | null;
+            /** Scheduled At */
+            scheduled_at: string;
+            /** Available At */
+            available_at: string;
+            /** Deadline */
+            deadline: string | null;
+            /** Terminal Reason */
+            terminal_reason: string | null;
+            /** Last Error */
+            last_error: string | null;
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            } | null;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
+         * JobState
+         * @enum {string}
+         */
+        JobState: "QUEUED" | "RUNNING" | "SUCCEEDED" | "DEAD" | "EXPIRED";
         /**
          * JournalRecord
          * @description A committed Ledger journal of the challenge portfolio.
@@ -284,6 +413,18 @@ export interface components {
             /** Cost Basis */
             cost_basis: string;
         };
+        /** RedriveCommand */
+        RedriveCommand: {
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
+            /**
+             * Command Id
+             * Format: uuid
+             */
+            command_id: string;
+        };
         /** RegimeReadiness */
         RegimeReadiness: {
             /**
@@ -320,6 +461,12 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /**
+         * WorkClass
+         * @description Chapter 08 work classes. Reconciliation and monitoring are safety work.
+         * @enum {string}
+         */
+        WorkClass: "RECONCILIATION" | "MONITORING" | "INGEST" | "ANALYSIS" | "RESEARCH";
     };
     responses: never;
     parameters: never;
@@ -492,6 +639,92 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_jobs_api_jobs_get: {
+        parameters: {
+            query?: {
+                state?: components["schemas"]["JobState"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobRecord"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dead_letters_api_jobs_dead_letters_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobRecord"][];
+                };
+            };
+        };
+    };
+    redrive_api_jobs__job_id__redrive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RedriveCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobCommandResult"];
                 };
             };
             /** @description Validation Error */
