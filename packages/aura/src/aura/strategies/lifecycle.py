@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+"""Strategy lifecycle states and the transition rule of the target progression."""
+
 from enum import StrEnum
 
 
@@ -9,24 +10,6 @@ class Status(StrEnum):
     QUALIFIED = "QUALIFIED"
     ACTIVE_PAPER = "ACTIVE_PAPER"
     SUSPENDED = "SUSPENDED"
-
-
-@dataclass(frozen=True)
-class Pod:
-    id: str
-    name: str
-    description: str
-    status: Status = Status.DEVELOPMENT
-    implementation: str = "UNIMPLEMENTED"
-
-
-PODS = (
-    Pod("momentum", "Momentum", "Persistence in price and relative strength."),
-    Pod("breakout", "Breakout", "Expansion beyond a defined price range."),
-    Pod("event-catalyst", "Event / Catalyst", "Price discovery around material events."),
-    Pod("mean-reversion", "Mean Reversion", "Dislocations from a defined reference."),
-    Pod("swing-trend", "Swing Trend", "Multi-session trends with explicit invalidation."),
-)
 
 
 def validate_transition(
