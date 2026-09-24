@@ -35,3 +35,10 @@ Date: 2026-09-05. Authority: explicit product-owner architecture refinement prom
 | Offline League and scorecards | ADR-0022; OD-15 |
 
 The [register](15-open-decisions.md) separates approved portions from genuinely unresolved questions. Detailed executable schemas, runtime versions and tests will be created only after an implementation prompt. No vendor selection or numeric risk/evaluation threshold was authorized by adopting the baseline.
+
+## Implementation-pass decisions (2026-09-23)
+
+Authority: explicit product-owner answers during the resumed implementation pass that uses the synthetic fixture market-data source. Each approval covers exactly the question as asked and nothing wider.
+
+1. **OD-08 / OD-03: one development Pod.** Question: "May agents implement one Pod's signal rules now, in DEVELOPMENT, with textbook parameters labeled UNAPPROVED, run only on synthetic data and shown only as labeled Observe candidates?" Answer: **yes, Swing Trend only.** The parameters stay UNAPPROVED, and the Pod stays in DEVELOPMENT and cannot qualify or activate. Its candidates are labeled as a development rule on synthetic data. Qualification policy (OD-15), horizons (OD-03) and the other four Pods stay open.
+2. **OD-12: Full Kill human re-arm.** Question: "May an audited human command re-arm Full Kill when no adapter is configured, provided there are zero nonterminal or unknown orders, zero quarantined receipts, ledger invariants pass and required health is known? Re-arm never clears Entry Halt, mode or health." Answer: **yes, with that checklist.** Re-arm needs a human reason and typed confirmation. It increments the control generation and invalidates unsubmitted authorizations, and it is never automatic, including on restart. Automatic trigger thresholds and re-arm with a configured adapter stay open.
