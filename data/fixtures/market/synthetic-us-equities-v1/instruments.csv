@@ -1,0 +1,13 @@
+instrument_id,security_type,name,sector,currency,tick_size,listed_on,available_at
+inst_syn_0001,EQUITY,Synthetic Fixture Equity 01,Orbital Agriculture,USD,0.01,2018-03-05,2018-03-05T13:00:00Z
+inst_syn_0002,EQUITY,Synthetic Fixture Equity 02,Orbital Agriculture,USD,0.01,2016-09-12,2016-09-12T12:00:00Z
+inst_syn_0003,EQUITY,Synthetic Fixture Equity 03,Cloud Weaving,USD,0.01,2019-05-20,2019-05-20T12:00:00Z
+inst_syn_0004,EQUITY,Synthetic Fixture Equity 04,Cloud Weaving,USD,0.01,2020-10-01,2020-10-01T12:00:00Z
+inst_syn_0005,EQUITY,Synthetic Fixture Equity 05,Tidal Clockworks,USD,0.01,2015-02-17,2015-02-17T13:00:00Z
+inst_syn_0006,EQUITY,Synthetic Fixture Equity 06,Tidal Clockworks,USD,0.01,2017-06-19,2017-06-19T12:00:00Z
+inst_syn_0007,EQUITY,Synthetic Fixture Equity 07,Lantern Freight,USD,0.01,2021-03-15,2021-03-15T12:00:00Z
+inst_syn_0008,EQUITY,Synthetic Fixture Equity 08,Lantern Freight,USD,0.01,2014-11-03,2014-11-03T13:00:00Z
+inst_syn_0009,EQUITY,Synthetic Fixture Equity 09,Lantern Freight,USD,0.01,2019-08-26,2019-08-26T12:00:00Z
+inst_syn_0010,EQUITY,Synthetic Fixture Equity 10,Orbital Agriculture,USD,0.01,2024-06-25,2024-06-18T21:00:00Z
+inst_syn_0011,ETF,Synthetic Fixture Basket X1,Multi-Sector Basket,USD,0.01,2012-04-02,2012-04-02T12:00:00Z
+inst_syn_0012,ETF,Synthetic Fixture Basket X2,Cloud Weaving Basket,USD,0.01,2013-01-14,2013-01-14T13:00:00Z

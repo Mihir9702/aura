@@ -1,0 +1,1302 @@
+{
+  "manifest_schema_version": 1,
+  "dataset_id": "synthetic-us-equities-v1",
+  "version": 1,
+  "title": "Synthetic US equities fixture v1 (NOT MARKET DATA)",
+  "description": "Fictional instruments and generated prices for testing Aura's data, feature and regime code. Not market data, not investment evidence, not qualification evidence.",
+  "rights": {
+    "license": "MIT (repo)",
+    "third_party_content": "none",
+    "provenance_class": "SYNTHETIC_FIXTURE",
+    "not_market_data": true
+  },
+  "generator": {
+    "module": "aura.data.fixture_generator",
+    "version": 1,
+    "seed": 20260923,
+    "prng": "SPLITMIX64",
+    "normal_approximation": "IRWIN_HALL_12",
+    "decimal_context": {
+      "precision": 28,
+      "rounding": "ROUND_HALF_EVEN"
+    },
+    "command": "uv run python -m aura.data.fixture_generator --out data/fixtures/market/synthetic-us-equities-v1"
+  },
+  "publisher": {
+    "id": "aura-synthetic-fixture",
+    "kind": "SYNTHETIC_FIXTURE",
+    "availability": "available_at is the publication time declared by this generator, which is the publisher. It is authoritative for this fixture and meaningless for any real market."
+  },
+  "calendar": "FIXTURE_WEEKDAY_V1",
+  "calendar_definition": {
+    "id": "FIXTURE_WEEKDAY_V1",
+    "exchange_calendar": false,
+    "definition": "Monday to Friday minus the declared fixture holidays. Every session runs 09:30 to 16:00 America/New_York. No early closes, unscheduled closures or exchange rules are modelled.",
+    "timezone": "America/New_York",
+    "session_open_local": "09:30",
+    "session_close_local": "16:00",
+    "first_session": "2024-01-02",
+    "last_session": "2025-07-08",
+    "sessions": 380,
+    "holidays": [
+      "2024-01-15",
+      "2024-02-19",
+      "2024-03-29",
+      "2024-05-27",
+      "2024-06-19",
+      "2024-07-04",
+      "2024-09-02",
+      "2024-11-28",
+      "2024-12-25",
+      "2025-01-01",
+      "2025-01-20",
+      "2025-02-17",
+      "2025-04-18",
+      "2025-05-26",
+      "2025-06-19",
+      "2025-07-04"
+    ],
+    "dst_rule": "US rule in force since 2007: UTC-04:00 from the second Sunday in March to the first Sunday in November, UTC-05:00 otherwise",
+    "dst_transitions": [
+      {
+        "date": "2024-03-10",
+        "utc_offset_after": "-04:00",
+        "first_session_after": "2024-03-11",
+        "interval_start_utc_after": "2024-03-11T13:30:00Z"
+      },
+      {
+        "date": "2024-11-03",
+        "utc_offset_after": "-05:00",
+        "first_session_after": "2024-11-04",
+        "interval_start_utc_after": "2024-11-04T14:30:00Z"
+      },
+      {
+        "date": "2025-03-09",
+        "utc_offset_after": "-04:00",
+        "first_session_after": "2025-03-10",
+        "interval_start_utc_after": "2025-03-10T13:30:00Z"
+      }
+    ]
+  },
+  "time_semantics": {
+    "instant_format": "RFC 3339 UTC with Z suffix, second precision",
+    "date_format": "ISO 8601 calendar date (America/New_York session date)",
+    "bar_interval": "1d",
+    "bar_event_time": "interval_end",
+    "publication_delay": "PT15M",
+    "bar_available_at": "interval_end + publication_delay unless a scenario declares otherwise",
+    "published_at": "equal to available_at",
+    "reference_available_at": "08:00 America/New_York for records known before trading; 17:00 America/New_York for post-close notices",
+    "symbol_periods": "[effective_from, effective_to), never overlapping. A period's end becomes known with the available_at of the row that replaces it; resolve with as_of <= knowledge_cutoff.",
+    "point_in_time_rule": "event_time <= as_of and available_at <= knowledge_cutoff"
+  },
+  "bar_conventions": {
+    "currency": "USD",
+    "adjustment_basis": "RAW",
+    "adjustment_meaning": "prices as traded (unadjusted): no split or dividend adjustment",
+    "tick_size": "0.01",
+    "price_format": "decimal string with exactly two fractional digits",
+    "volume_unit": "shares",
+    "identity": "provider_record_id + revision"
+  },
+  "warm_up": {
+    "sessions": 200,
+    "first_session_with_full_warm_up": "2024-10-16",
+    "sessions_with_full_warm_up": 181,
+    "applies_to": "instruments covering the whole window"
+  },
+  "instruments": {
+    "count": 12,
+    "equities": 10,
+    "etfs": 2,
+    "id_rule": "inst_syn_ followed by four digits",
+    "symbol_rule": "SYN followed by two characters, at least one a digit. US exchange tickers are letters only, so fixture symbols cannot collide with real tickers.",
+    "universe_id": "SYN_ALL_V1",
+    "unknown_instrument_ids": [
+      "inst_syn_0013"
+    ]
+  },
+  "files": {
+    "instruments.csv": {
+      "sha256": "e24a25af417e32e896d649af60c294834866343c0a091b2c7cee09dbc6958588",
+      "rows": 12
+    },
+    "symbol_history.csv": {
+      "sha256": "bda9b537732d5cc7bc88d1ee29c4c7d465a02d12ffa65c527ca4539ff31a865c",
+      "rows": 13
+    },
+    "universe_membership.csv": {
+      "sha256": "49df0ecbb430ffca06e415d021bbd631b4f4d1e494be2a4de4bf57ed130f0470",
+      "rows": 13
+    },
+    "bars_1d.csv": {
+      "sha256": "3d51ca3881ba1496e18028a23d786c34b109cfb3fbc00959341201cbe90d7230",
+      "rows": 4388
+    },
+    "corporate_actions.csv": {
+      "sha256": "051892749d361a6b161beea3e6c7830abb411c610344f0ae9de47847d79e4256",
+      "rows": 1
+    }
+  },
+  "documents": {
+    "README.md": {
+      "sha256": "0daa61b48d535f5311b46e99556a8fcd669dddb9b8b81c336b3dfc91a39fa917",
+      "rows": 104
+    }
+  },
+  "file_details": {
+    "instruments.csv": {
+      "media_type": "text/csv",
+      "bytes": 1367,
+      "row_unit": "CSV record excluding the header",
+      "identity": [
+        "instrument_id"
+      ],
+      "row_order": "instrument_id",
+      "columns": [
+        {
+          "name": "instrument_id",
+          "description": "Stable fixture instrument ID (inst_syn_NNNN); never reused."
+        },
+        {
+          "name": "security_type",
+          "description": "EQUITY, or ETF for a synthetic ETF-like basket."
+        },
+        {
+          "name": "name",
+          "description": "Fictional descriptive name."
+        },
+        {
+          "name": "sector",
+          "description": "Fictional sector; static in this fixture."
+        },
+        {
+          "name": "currency",
+          "description": "ISO 4217 currency code."
+        },
+        {
+          "name": "tick_size",
+          "description": "Minimum price increment, decimal string."
+        },
+        {
+          "name": "listed_on",
+          "description": "First session date (America/New_York)."
+        },
+        {
+          "name": "available_at",
+          "description": "When this reference record became known (UTC)."
+        }
+      ]
+    },
+    "symbol_history.csv": {
+      "media_type": "text/csv",
+      "bytes": 871,
+      "row_unit": "CSV record excluding the header",
+      "identity": [
+        "instrument_id",
+        "effective_from"
+      ],
+      "row_order": "instrument_id, effective_from",
+      "columns": [
+        {
+          "name": "instrument_id",
+          "description": "Stable fixture instrument ID."
+        },
+        {
+          "name": "symbol",
+          "description": "Fictional ticker; always contains a digit, so it cannot be a US exchange ticker."
+        },
+        {
+          "name": "effective_from",
+          "description": "First session date the symbol applies (inclusive)."
+        },
+        {
+          "name": "effective_to",
+          "description": "First session date the symbol no longer applies (exclusive); empty while open. The end of a period becomes known with the row that replaces it."
+        },
+        {
+          "name": "reason",
+          "description": "LISTING or RENAME."
+        },
+        {
+          "name": "available_at",
+          "description": "When this assignment became known (UTC)."
+        }
+      ]
+    },
+    "universe_membership.csv": {
+      "media_type": "text/csv",
+      "bytes": 970,
+      "row_unit": "CSV record excluding the header",
+      "identity": [
+        "universe_id",
+        "instrument_id",
+        "action",
+        "effective_from"
+      ],
+      "row_order": "available_at, instrument_id",
+      "columns": [
+        {
+          "name": "universe_id",
+          "description": "Point-in-time universe identifier."
+        },
+        {
+          "name": "instrument_id",
+          "description": "Stable fixture instrument ID."
+        },
+        {
+          "name": "action",
+          "description": "ADD or REMOVE."
+        },
+        {
+          "name": "effective_from",
+          "description": "First session date the action applies (inclusive)."
+        },
+        {
+          "name": "reason",
+          "description": "INITIAL, LISTING or DELISTING."
+        },
+        {
+          "name": "available_at",
+          "description": "When the membership change became known (UTC)."
+        }
+      ]
+    },
+    "bars_1d.csv": {
+      "media_type": "text/csv",
+      "bytes": 607915,
+      "row_unit": "CSV record excluding the header",
+      "identity": [
+        "provider_record_id",
+        "revision"
+      ],
+      "row_order": "delivery order: non-decreasing available_at; within one publication batch by instrument_id, with redeliveries after the batch",
+      "columns": [
+        {
+          "name": "provider_record_id",
+          "description": "Publisher observation identity (MarketObservation.provider_record_id). Revisions of one bar share it."
+        },
+        {
+          "name": "revision",
+          "description": "Positive integer; a higher revision supersedes a lower one from its available_at."
+        },
+        {
+          "name": "instrument_id",
+          "description": "Stable fixture instrument ID."
+        },
+        {
+          "name": "interval_start",
+          "description": "Session open, 09:30 America/New_York, as a UTC instant."
+        },
+        {
+          "name": "interval_end",
+          "description": "Session close, 16:00 America/New_York, as a UTC instant; the event time."
+        },
+        {
+          "name": "open",
+          "description": "Unadjusted USD price with exactly two decimal places."
+        },
+        {
+          "name": "high",
+          "description": "Unadjusted USD price with exactly two decimal places."
+        },
+        {
+          "name": "low",
+          "description": "Unadjusted USD price with exactly two decimal places."
+        },
+        {
+          "name": "close",
+          "description": "Unadjusted USD price with exactly two decimal places."
+        },
+        {
+          "name": "volume",
+          "description": "Shares traded, positive integer."
+        },
+        {
+          "name": "adjustment_basis",
+          "description": "RAW: prices as traded, not adjusted for splits or dividends."
+        },
+        {
+          "name": "final",
+          "description": "true for a completed bar, false for a provisional one."
+        },
+        {
+          "name": "available_at",
+          "description": "Publication time declared by the synthetic publisher (UTC)."
+        }
+      ]
+    },
+    "corporate_actions.csv": {
+      "media_type": "text/csv",
+      "bytes": 141,
+      "row_unit": "CSV record excluding the header",
+      "identity": [
+        "action_id"
+      ],
+      "row_order": "available_at, action_id",
+      "columns": [
+        {
+          "name": "action_id",
+          "description": "Stable corporate-action identity."
+        },
+        {
+          "name": "instrument_id",
+          "description": "Stable fixture instrument ID."
+        },
+        {
+          "name": "action_type",
+          "description": "SPLIT."
+        },
+        {
+          "name": "ex_date",
+          "description": "First session date trading on the new share basis."
+        },
+        {
+          "name": "ratio_new",
+          "description": "New shares received per ratio_old shares held."
+        },
+        {
+          "name": "ratio_old",
+          "description": "Shares held before the action."
+        },
+        {
+          "name": "available_at",
+          "description": "Announcement time (UTC)."
+        }
+      ]
+    },
+    "README.md": {
+      "media_type": "text/markdown",
+      "bytes": 8430,
+      "row_unit": "text line"
+    }
+  },
+  "manifest_digest": "not recorded: a manifest cannot contain its own hash; verify it by regeneration",
+  "event_range": {
+    "min": "2024-01-02T14:30:00Z",
+    "max": "2025-07-08T20:00:00Z",
+    "basis": "bars_1d.csv: earliest interval_start to latest interval_end"
+  },
+  "availability_range": {
+    "min": "2024-01-02T21:15:00Z",
+    "max": "2025-07-08T20:15:00Z",
+    "basis": "bars_1d.csv: available_at"
+  },
+  "reference_ranges": {
+    "effective_dates": {
+      "min": "2012-04-02",
+      "max": "2025-04-28"
+    },
+    "available_at": {
+      "min": "2012-04-02T12:00:00Z",
+      "max": "2025-04-17T21:00:00Z"
+    },
+    "basis": "listing, effective and ex dates and available_at of the reference files"
+  },
+  "stats": {
+    "sessions": 380,
+    "instruments": 12,
+    "bar_rows": 4388,
+    "data_rows": 4427,
+    "data_bytes": 611264
+  },
+  "process": {
+    "model": "SEEDED_REGIME_SWITCHING_RANDOM_WALK_V1",
+    "note": "Segments are data-generating parameters for tests. They are not canonical regime classifications and must not label the Regime Engine.",
+    "market_return": "drift + volatility * z; RANGE_BOUND subtracts reversion * (level / segment_start_level - 1)",
+    "instrument_return": "beta * market + sector factor + idiosyncratic volatility * idiosyncratic_scale * z",
+    "segments": [
+      {
+        "segment": 1,
+        "kind": "TREND",
+        "first_session": "2024-01-02",
+        "last_session": "2024-03-13",
+        "sessions": 50,
+        "market_drift": "0.0020",
+        "market_volatility": "0.0070",
+        "reversion": "0",
+        "sector_volatility": "0.0030",
+        "sector_drift_spread": "0.0006",
+        "idiosyncratic_scale": "1.0",
+        "volume_factor": "1.00"
+      },
+      {
+        "segment": 2,
+        "kind": "RANGE_BOUND",
+        "first_session": "2024-03-14",
+        "last_session": "2024-05-16",
+        "sessions": 45,
+        "market_drift": "0",
+        "market_volatility": "0.0060",
+        "reversion": "0.12",
+        "sector_volatility": "0.0025",
+        "sector_drift_spread": "0",
+        "idiosyncratic_scale": "0.9",
+        "volume_factor": "0.85"
+      },
+      {
+        "segment": 3,
+        "kind": "HIGH_VOLATILITY",
+        "first_session": "2024-05-17",
+        "last_session": "2024-07-01",
+        "sessions": 30,
+        "market_drift": "0",
+        "market_volatility": "0.0220",
+        "reversion": "0",
+        "sector_volatility": "0.0060",
+        "sector_drift_spread": "0",
+        "idiosyncratic_scale": "1.8",
+        "volume_factor": "1.70"
+      },
+      {
+        "segment": 4,
+        "kind": "DRAWDOWN",
+        "first_session": "2024-07-02",
+        "last_session": "2024-08-27",
+        "sessions": 40,
+        "market_drift": "-0.0055",
+        "market_volatility": "0.0120",
+        "reversion": "0",
+        "sector_volatility": "0.0030",
+        "sector_drift_spread": "0.0004",
+        "idiosyncratic_scale": "1.3",
+        "volume_factor": "1.45"
+      },
+      {
+        "segment": 5,
+        "kind": "TREND",
+        "first_session": "2024-08-28",
+        "last_session": "2024-11-06",
+        "sessions": 50,
+        "market_drift": "0.0024",
+        "market_volatility": "0.0080",
+        "reversion": "0",
+        "sector_volatility": "0.0035",
+        "sector_drift_spread": "0.0008",
+        "idiosyncratic_scale": "1.0",
+        "volume_factor": "1.10"
+      },
+      {
+        "segment": 6,
+        "kind": "RANGE_BOUND",
+        "first_session": "2024-11-07",
+        "last_session": "2025-01-13",
+        "sessions": 45,
+        "market_drift": "0",
+        "market_volatility": "0.0055",
+        "reversion": "0.12",
+        "sector_volatility": "0.0025",
+        "sector_drift_spread": "0",
+        "idiosyncratic_scale": "0.9",
+        "volume_factor": "0.80"
+      },
+      {
+        "segment": 7,
+        "kind": "HIGH_VOLATILITY",
+        "first_session": "2025-01-14",
+        "last_session": "2025-02-26",
+        "sessions": 30,
+        "market_drift": "0",
+        "market_volatility": "0.0240",
+        "reversion": "0",
+        "sector_volatility": "0.0065",
+        "sector_drift_spread": "0",
+        "idiosyncratic_scale": "1.8",
+        "volume_factor": "1.80"
+      },
+      {
+        "segment": 8,
+        "kind": "DRAWDOWN",
+        "first_session": "2025-02-27",
+        "last_session": "2025-04-24",
+        "sessions": 40,
+        "market_drift": "-0.0060",
+        "market_volatility": "0.0130",
+        "reversion": "0",
+        "sector_volatility": "0.0030",
+        "sector_drift_spread": "0.0004",
+        "idiosyncratic_scale": "1.3",
+        "volume_factor": "1.50"
+      },
+      {
+        "segment": 9,
+        "kind": "TREND",
+        "first_session": "2025-04-25",
+        "last_session": "2025-07-08",
+        "sessions": 50,
+        "market_drift": "0.0018",
+        "market_volatility": "0.0070",
+        "reversion": "0",
+        "sector_volatility": "0.0030",
+        "sector_drift_spread": "0.0006",
+        "idiosyncratic_scale": "1.0",
+        "volume_factor": "1.00"
+      }
+    ]
+  },
+  "scenario_conventions": {
+    "row": "1-based CSV record number in the named file, excluding the header",
+    "trap_rows": "bars_1d.csv rows that are deliberately invalid, duplicated, revised, provisional, delayed or unidentifiable. Every other bar row is a valid, final, first-revision bar published at interval_end + publication_delay.",
+    "records": "rows the scenario refers to, with every value exactly as in the file",
+    "covered_by": "pytest node that checks the scenario is present exactly as declared"
+  },
+  "scenarios": [
+    {
+      "id": "late_revision",
+      "kind": "LATE_REVISION",
+      "files": [
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0002",
+      "session_date": "2024-12-03",
+      "description": "A final bar is corrected by revision 2, published three sessions later with a different close, high/low envelope and volume.",
+      "expected_handling": "SUPERSEDE_FROM_AVAILABLE_AT",
+      "expectation": "Knowledge cutoffs before revision 2's available_at see revision 1; later cutoffs see revision 2. Snapshots built before the correction keep revision 1.",
+      "trap_rows": {
+        "bars_1d.csv": [
+          2666,
+          2713
+        ]
+      },
+      "records": [
+        {
+          "file": "bars_1d.csv",
+          "row": 2666,
+          "role": "revision_1",
+          "provider_record_id": "bar-0002-20241203",
+          "revision": "1",
+          "instrument_id": "inst_syn_0002",
+          "interval_start": "2024-12-03T14:30:00Z",
+          "interval_end": "2024-12-03T21:00:00Z",
+          "open": "102.60",
+          "high": "104.00",
+          "low": "102.46",
+          "close": "103.72",
+          "volume": "240360",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2024-12-03T21:15:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 2713,
+          "role": "revision_2",
+          "provider_record_id": "bar-0002-20241203",
+          "revision": "2",
+          "instrument_id": "inst_syn_0002",
+          "interval_start": "2024-12-03T14:30:00Z",
+          "interval_end": "2024-12-03T21:00:00Z",
+          "open": "102.60",
+          "high": "105.28",
+          "low": "102.46",
+          "close": "105.28",
+          "volume": "249974",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2024-12-06T23:00:00Z"
+        }
+      ],
+      "facts": {
+        "revision_lag_sessions": 3
+      },
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_late_revision"
+    },
+    {
+      "id": "provisional_then_final",
+      "kind": "PROVISIONAL_BAR",
+      "files": [
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0003",
+      "session_date": "2024-12-16",
+      "description": "A provisional bar (final=false) is published one minute after the close. The final bar (revision 2) follows before the next session's open.",
+      "expected_handling": "EXCLUDE_PROVISIONAL_UNTIL_FINAL",
+      "expectation": "The provisional revision never enters close-based features. At the regular cutoff (close plus 15 minutes) the session has no completed bar; revision 2 is eligible from its available_at.",
+      "trap_rows": {
+        "bars_1d.csv": [
+          2774,
+          2786
+        ]
+      },
+      "records": [
+        {
+          "file": "bars_1d.csv",
+          "row": 2774,
+          "role": "provisional",
+          "provider_record_id": "bar-0003-20241216",
+          "revision": "1",
+          "instrument_id": "inst_syn_0003",
+          "interval_start": "2024-12-16T14:30:00Z",
+          "interval_end": "2024-12-16T21:00:00Z",
+          "open": "39.53",
+          "high": "40.26",
+          "low": "38.59",
+          "close": "38.89",
+          "volume": "1896793",
+          "adjustment_basis": "RAW",
+          "final": "false",
+          "available_at": "2024-12-16T21:01:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 2786,
+          "role": "final",
+          "provider_record_id": "bar-0003-20241216",
+          "revision": "2",
+          "instrument_id": "inst_syn_0003",
+          "interval_start": "2024-12-16T14:30:00Z",
+          "interval_end": "2024-12-16T21:00:00Z",
+          "open": "39.53",
+          "high": "40.26",
+          "low": "38.59",
+          "close": "38.92",
+          "volume": "2107548",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2024-12-17T13:00:00Z"
+        }
+      ],
+      "facts": {
+        "final_published_before_session": "2024-12-17"
+      },
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_provisional_then_final"
+    },
+    {
+      "id": "missing_session",
+      "kind": "MISSING_SESSION",
+      "files": [
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0004",
+      "session_date": "2024-12-30",
+      "description": "No record exists for one calendar session in the middle of an active instrument's history.",
+      "expected_handling": "EXPLICIT_GAP_NO_FILL",
+      "expectation": "Completeness checks report the gap. Features that need the session are NOT_READY or flagged; the gap is never forward-filled or zero-filled.",
+      "trap_rows": {},
+      "records": [
+        {
+          "file": "bars_1d.csv",
+          "row": 2874,
+          "role": "previous_session",
+          "provider_record_id": "bar-0004-20241227",
+          "revision": "1",
+          "instrument_id": "inst_syn_0004",
+          "interval_start": "2024-12-27T14:30:00Z",
+          "interval_end": "2024-12-27T21:00:00Z",
+          "open": "45.11",
+          "high": "45.61",
+          "low": "44.77",
+          "close": "45.08",
+          "volume": "1006185",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2024-12-27T21:15:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 2897,
+          "role": "next_session",
+          "provider_record_id": "bar-0004-20241231",
+          "revision": "1",
+          "instrument_id": "inst_syn_0004",
+          "interval_start": "2024-12-31T14:30:00Z",
+          "interval_end": "2024-12-31T21:00:00Z",
+          "open": "45.47",
+          "high": "45.68",
+          "low": "45.03",
+          "close": "45.62",
+          "volume": "413353",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2024-12-31T21:15:00Z"
+        }
+      ],
+      "facts": {
+        "previous_session": "2024-12-27",
+        "next_session": "2024-12-31"
+      },
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_missing_session"
+    },
+    {
+      "id": "impossible_ohlc",
+      "kind": "IMPOSSIBLE_OHLC",
+      "files": [
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0005",
+      "session_date": "2025-01-08",
+      "description": "The only record for the session has high below low (the two values are swapped).",
+      "expected_handling": "QUARANTINE_INVALID_OHLC",
+      "expectation": "Quarantine the record. The session has no valid bar for this instrument.",
+      "trap_rows": {
+        "bars_1d.csv": [
+          2958
+        ]
+      },
+      "records": [
+        {
+          "file": "bars_1d.csv",
+          "row": 2958,
+          "role": "impossible",
+          "provider_record_id": "bar-0005-20250108",
+          "revision": "1",
+          "instrument_id": "inst_syn_0005",
+          "interval_start": "2025-01-08T14:30:00Z",
+          "interval_end": "2025-01-08T21:00:00Z",
+          "open": "90.89",
+          "high": "88.68",
+          "low": "90.92",
+          "close": "90.00",
+          "volume": "727597",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-01-08T21:15:00Z"
+        }
+      ],
+      "facts": {},
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_impossible_ohlc"
+    },
+    {
+      "id": "identical_duplicate",
+      "kind": "IDENTICAL_DUPLICATE",
+      "files": [
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0006",
+      "session_date": "2025-01-16",
+      "description": "The same record (identity, revision and payload) is delivered twice in one batch, not on adjacent rows.",
+      "expected_handling": "DEDUPLICATE_IDEMPOTENT",
+      "expectation": "Store one observation and count the redelivery in duplicate-rate quality metrics.",
+      "trap_rows": {
+        "bars_1d.csv": [
+          3031,
+          3038
+        ]
+      },
+      "records": [
+        {
+          "file": "bars_1d.csv",
+          "row": 3031,
+          "role": "first",
+          "provider_record_id": "bar-0006-20250116",
+          "revision": "1",
+          "instrument_id": "inst_syn_0006",
+          "interval_start": "2025-01-16T14:30:00Z",
+          "interval_end": "2025-01-16T21:00:00Z",
+          "open": "284.18",
+          "high": "288.98",
+          "low": "262.24",
+          "close": "275.38",
+          "volume": "640046",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-01-16T21:15:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 3038,
+          "role": "second",
+          "provider_record_id": "bar-0006-20250116",
+          "revision": "1",
+          "instrument_id": "inst_syn_0006",
+          "interval_start": "2025-01-16T14:30:00Z",
+          "interval_end": "2025-01-16T21:00:00Z",
+          "open": "284.18",
+          "high": "288.98",
+          "low": "262.24",
+          "close": "275.38",
+          "volume": "640046",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-01-16T21:15:00Z"
+        }
+      ],
+      "facts": {},
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_identical_duplicate"
+    },
+    {
+      "id": "conflicting_duplicate",
+      "kind": "CONFLICTING_DUPLICATE",
+      "files": [
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0001",
+      "session_date": "2025-01-27",
+      "description": "Two records share provider_record_id, revision and timestamps but differ in close and volume.",
+      "expected_handling": "QUARANTINE_IDENTITY_CONFLICT",
+      "expectation": "Quarantine both copies and raise a quality incident. Neither copy enters features; the session stays unresolved until a new revision arrives. Never pick one silently.",
+      "trap_rows": {
+        "bars_1d.csv": [
+          3099,
+          3111
+        ]
+      },
+      "records": [
+        {
+          "file": "bars_1d.csv",
+          "row": 3099,
+          "role": "first",
+          "provider_record_id": "bar-0001-20250127",
+          "revision": "1",
+          "instrument_id": "inst_syn_0001",
+          "interval_start": "2025-01-27T14:30:00Z",
+          "interval_end": "2025-01-27T21:00:00Z",
+          "open": "46.53",
+          "high": "47.46",
+          "low": "44.65",
+          "close": "47.10",
+          "volume": "1658937",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-01-27T21:15:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 3111,
+          "role": "second",
+          "provider_record_id": "bar-0001-20250127",
+          "revision": "1",
+          "instrument_id": "inst_syn_0001",
+          "interval_start": "2025-01-27T14:30:00Z",
+          "interval_end": "2025-01-27T21:00:00Z",
+          "open": "46.53",
+          "high": "47.46",
+          "low": "44.65",
+          "close": "47.03",
+          "volume": "1671437",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-01-27T21:15:00Z"
+        }
+      ],
+      "facts": {
+        "differing_columns": [
+          "close",
+          "volume"
+        ]
+      },
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_conflicting_duplicate"
+    },
+    {
+      "id": "out_of_order_delivery",
+      "kind": "OUT_OF_ORDER_DELIVERY",
+      "files": [
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0012",
+      "session_date": "2025-02-04",
+      "description": "A session's bar is delivered after the next session's bar for the same instrument, 20 minutes after that later session's close.",
+      "expected_handling": "ORDER_BY_EVENT_TIME",
+      "expectation": "Accept the record and order the series by interval_start, not delivery position. It is eligible only from its available_at; earlier cutoffs see a gap for the session.",
+      "trap_rows": {
+        "bars_1d.csv": [
+          3195
+        ]
+      },
+      "records": [
+        {
+          "file": "bars_1d.csv",
+          "row": 3195,
+          "role": "delivered_late",
+          "provider_record_id": "bar-0012-20250204",
+          "revision": "1",
+          "instrument_id": "inst_syn_0012",
+          "interval_start": "2025-02-04T14:30:00Z",
+          "interval_end": "2025-02-04T21:00:00Z",
+          "open": "64.08",
+          "high": "66.18",
+          "low": "61.47",
+          "close": "62.18",
+          "volume": "3312255",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-02-05T21:20:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 3194,
+          "role": "next_session_delivered_first",
+          "provider_record_id": "bar-0012-20250205",
+          "revision": "1",
+          "instrument_id": "inst_syn_0012",
+          "interval_start": "2025-02-05T14:30:00Z",
+          "interval_end": "2025-02-05T21:00:00Z",
+          "open": "62.36",
+          "high": "63.48",
+          "low": "61.39",
+          "close": "63.46",
+          "volume": "3877464",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-02-05T21:15:00Z"
+        }
+      ],
+      "facts": {
+        "delivered_after_session": "2025-02-05"
+      },
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_out_of_order_delivery"
+    },
+    {
+      "id": "unknown_instrument",
+      "kind": "UNKNOWN_INSTRUMENT",
+      "files": [
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0013",
+      "session_date": "2025-02-12",
+      "description": "A well-formed bar references an instrument ID that no reference file defines.",
+      "expected_handling": "QUARANTINE_UNKNOWN_INSTRUMENT",
+      "expectation": "Reject the record until the identity is resolved. Never create an instrument implicitly or map it by guesswork.",
+      "trap_rows": {
+        "bars_1d.csv": [
+          3256
+        ]
+      },
+      "records": [
+        {
+          "file": "bars_1d.csv",
+          "row": 3256,
+          "role": "unknown_instrument",
+          "provider_record_id": "bar-0013-20250212",
+          "revision": "1",
+          "instrument_id": "inst_syn_0013",
+          "interval_start": "2025-02-12T14:30:00Z",
+          "interval_end": "2025-02-12T21:00:00Z",
+          "open": "32.53",
+          "high": "35.50",
+          "low": "32.12",
+          "close": "34.38",
+          "volume": "1862748",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-02-12T21:15:00Z"
+        }
+      ],
+      "facts": {},
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_unknown_instrument"
+    },
+    {
+      "id": "mid_period_listing",
+      "kind": "MID_PERIOD_LISTING",
+      "files": [
+        "instruments.csv",
+        "symbol_history.csv",
+        "universe_membership.csv",
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0010",
+      "session_date": "2024-06-25",
+      "description": "An instrument lists partway through the window. Its reference records are announced four sessions earlier.",
+      "expected_handling": "NO_HISTORY_BEFORE_LISTING",
+      "expectation": "The instrument is unknown before its notice, joins the universe on its first session and has no earlier bars. Features stay NOT_READY until their warm-up is met by post-listing sessions; nothing is back-filled.",
+      "trap_rows": {},
+      "records": [
+        {
+          "file": "instruments.csv",
+          "row": 10,
+          "role": "instrument",
+          "instrument_id": "inst_syn_0010",
+          "security_type": "EQUITY",
+          "name": "Synthetic Fixture Equity 10",
+          "sector": "Orbital Agriculture",
+          "currency": "USD",
+          "tick_size": "0.01",
+          "listed_on": "2024-06-25",
+          "available_at": "2024-06-18T21:00:00Z"
+        },
+        {
+          "file": "symbol_history.csv",
+          "row": 11,
+          "role": "listing_symbol",
+          "instrument_id": "inst_syn_0010",
+          "symbol": "SYN10",
+          "effective_from": "2024-06-25",
+          "effective_to": "",
+          "reason": "LISTING",
+          "available_at": "2024-06-18T21:00:00Z"
+        },
+        {
+          "file": "universe_membership.csv",
+          "row": 12,
+          "role": "universe_add",
+          "universe_id": "SYN_ALL_V1",
+          "instrument_id": "inst_syn_0010",
+          "action": "ADD",
+          "effective_from": "2024-06-25",
+          "reason": "LISTING",
+          "available_at": "2024-06-18T21:00:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 1330,
+          "role": "first_bar",
+          "provider_record_id": "bar-0010-20240625",
+          "revision": "1",
+          "instrument_id": "inst_syn_0010",
+          "interval_start": "2024-06-25T13:30:00Z",
+          "interval_end": "2024-06-25T20:00:00Z",
+          "open": "23.42",
+          "high": "24.59",
+          "low": "22.25",
+          "close": "24.51",
+          "volume": "4286002",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2024-06-25T20:15:00Z"
+        }
+      ],
+      "facts": {
+        "listed_on": "2024-06-25",
+        "notice_available_at": "2024-06-18T21:00:00Z",
+        "sessions_listed": 260,
+        "first_session_with_full_warm_up": "2025-04-09"
+      },
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_mid_period_listing"
+    },
+    {
+      "id": "delisting_retained_in_history",
+      "kind": "DELISTING",
+      "files": [
+        "universe_membership.csv",
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0009",
+      "session_date": "2025-04-25",
+      "description": "An instrument declines and is delisted. Its last session is the one shown; the universe removal takes effect on the next session and was announced five sessions before the last one.",
+      "expected_handling": "RETAIN_DELISTED_IN_HISTORY",
+      "expectation": "The instrument is a universe member for every as-of date through its last session. Historical universes and backtests must include it (no survivorship bias). No bar after the removal is expected, so its absence is not staleness.",
+      "trap_rows": {},
+      "records": [
+        {
+          "file": "universe_membership.csv",
+          "row": 13,
+          "role": "universe_remove",
+          "universe_id": "SYN_ALL_V1",
+          "instrument_id": "inst_syn_0009",
+          "action": "REMOVE",
+          "effective_from": "2025-04-28",
+          "reason": "DELISTING",
+          "available_at": "2025-04-17T21:00:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 3853,
+          "role": "last_bar",
+          "provider_record_id": "bar-0009-20250425",
+          "revision": "1",
+          "instrument_id": "inst_syn_0009",
+          "interval_start": "2025-04-25T13:30:00Z",
+          "interval_end": "2025-04-25T20:00:00Z",
+          "open": "13.98",
+          "high": "14.77",
+          "low": "13.77",
+          "close": "14.60",
+          "volume": "3221585",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-04-25T20:15:00Z"
+        }
+      ],
+      "facts": {
+        "last_session": "2025-04-25",
+        "removed_from": "2025-04-28",
+        "notice_available_at": "2025-04-17T21:00:00Z"
+      },
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_delisting_retained_in_history"
+    },
+    {
+      "id": "ticker_rename",
+      "kind": "TICKER_RENAME",
+      "files": [
+        "symbol_history.csv",
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0007",
+      "session_date": "2025-02-27",
+      "description": "SYN07 trades as SYN7R from the session shown. The change was announced five sessions earlier, which is also when the old period's effective_to became known. The instrument ID does not change.",
+      "expected_handling": "RESOLVE_SYMBOL_AS_OF",
+      "expectation": "Resolve symbols by effective period and available_at with as_of <= knowledge_cutoff. The bar series continues under the same instrument_id across the rename.",
+      "trap_rows": {},
+      "records": [
+        {
+          "file": "symbol_history.csv",
+          "row": 7,
+          "role": "old_symbol",
+          "instrument_id": "inst_syn_0007",
+          "symbol": "SYN07",
+          "effective_from": "2021-03-15",
+          "effective_to": "2025-02-27",
+          "reason": "LISTING",
+          "available_at": "2021-03-15T12:00:00Z"
+        },
+        {
+          "file": "symbol_history.csv",
+          "row": 8,
+          "role": "new_symbol",
+          "instrument_id": "inst_syn_0007",
+          "symbol": "SYN7R",
+          "effective_from": "2025-02-27",
+          "effective_to": "",
+          "reason": "RENAME",
+          "available_at": "2025-02-20T22:00:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 3359,
+          "role": "last_bar_before_rename",
+          "provider_record_id": "bar-0007-20250226",
+          "revision": "1",
+          "instrument_id": "inst_syn_0007",
+          "interval_start": "2025-02-26T14:30:00Z",
+          "interval_end": "2025-02-26T21:00:00Z",
+          "open": "18.52",
+          "high": "18.65",
+          "low": "18.24",
+          "close": "18.34",
+          "volume": "4214102",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-02-26T21:15:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 3371,
+          "role": "first_bar_after_rename",
+          "provider_record_id": "bar-0007-20250227",
+          "revision": "1",
+          "instrument_id": "inst_syn_0007",
+          "interval_start": "2025-02-27T14:30:00Z",
+          "interval_end": "2025-02-27T21:00:00Z",
+          "open": "18.32",
+          "high": "18.61",
+          "low": "17.33",
+          "close": "17.94",
+          "volume": "5911789",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-02-27T21:15:00Z"
+        }
+      ],
+      "facts": {
+        "old_symbol": "SYN07",
+        "new_symbol": "SYN7R",
+        "effective_from": "2025-02-27",
+        "notice_available_at": "2025-02-20T22:00:00Z"
+      },
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_ticker_rename"
+    },
+    {
+      "id": "unsupported_split",
+      "kind": "UNSUPPORTED_CORPORATE_ACTION",
+      "files": [
+        "corporate_actions.csv",
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0006",
+      "session_date": "2025-03-20",
+      "description": "A 2-for-1 split takes effect on the ex-date. Bars are unadjusted, so raw prices halve and volume roughly doubles from the ex-date.",
+      "expected_handling": "INVALID_UNSUPPORTED_CORPORATE_ACTION",
+      "expectation": "Aura has no corporate-action adjustment yet. Features whose window spans the ex-date are INVALID, or the instrument is excluded; the raw step is never read as a return. The instrument cannot supply qualification evidence (AC-20).",
+      "trap_rows": {},
+      "records": [
+        {
+          "file": "corporate_actions.csv",
+          "row": 1,
+          "role": "split",
+          "action_id": "ca-0001",
+          "instrument_id": "inst_syn_0006",
+          "action_type": "SPLIT",
+          "ex_date": "2025-03-20",
+          "ratio_new": "2",
+          "ratio_old": "1",
+          "available_at": "2025-03-06T22:00:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 3538,
+          "role": "last_bar_before_ex_date",
+          "provider_record_id": "bar-0006-20250319",
+          "revision": "1",
+          "instrument_id": "inst_syn_0006",
+          "interval_start": "2025-03-19T13:30:00Z",
+          "interval_end": "2025-03-19T20:00:00Z",
+          "open": "240.48",
+          "high": "243.96",
+          "low": "236.41",
+          "close": "241.23",
+          "volume": "401520",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-03-19T20:15:00Z"
+        },
+        {
+          "file": "bars_1d.csv",
+          "row": 3550,
+          "role": "ex_date_bar",
+          "provider_record_id": "bar-0006-20250320",
+          "revision": "1",
+          "instrument_id": "inst_syn_0006",
+          "interval_start": "2025-03-20T13:30:00Z",
+          "interval_end": "2025-03-20T20:00:00Z",
+          "open": "122.07",
+          "high": "122.39",
+          "low": "115.11",
+          "close": "115.96",
+          "volume": "1254442",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-03-20T20:15:00Z"
+        }
+      ],
+      "facts": {
+        "action_id": "ca-0001",
+        "ratio_new": 2,
+        "ratio_old": 1,
+        "ex_date": "2025-03-20",
+        "notice_available_at": "2025-03-06T22:00:00Z",
+        "raw_close_before_ex_date": "241.23",
+        "raw_open_on_ex_date": "122.07"
+      },
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_unsupported_split"
+    },
+    {
+      "id": "stale_tail",
+      "kind": "STALE_TAIL",
+      "files": [
+        "bars_1d.csv"
+      ],
+      "instrument_id": "inst_syn_0008",
+      "session_date": "2025-06-26",
+      "description": "Bars stop before the end of the window without any delisting, removal or corporate action. The session shown is the last bar.",
+      "expected_handling": "FLAG_STALE_NO_FORWARD_FILL",
+      "expectation": "Freshness checks mark the instrument stale for later as-of dates. It stays a universe member, and its last close is never forward-filled.",
+      "trap_rows": {},
+      "records": [
+        {
+          "file": "bars_1d.csv",
+          "row": 4315,
+          "role": "last_bar",
+          "provider_record_id": "bar-0008-20250626",
+          "revision": "1",
+          "instrument_id": "inst_syn_0008",
+          "interval_start": "2025-06-26T13:30:00Z",
+          "interval_end": "2025-06-26T20:00:00Z",
+          "open": "67.96",
+          "high": "68.17",
+          "low": "65.63",
+          "close": "65.91",
+          "volume": "667716",
+          "adjustment_basis": "RAW",
+          "final": "true",
+          "available_at": "2025-06-26T20:15:00Z"
+        }
+      ],
+      "facts": {
+        "last_bar_session": "2025-06-26",
+        "missing_trailing_sessions": 7,
+        "dataset_last_session": "2025-07-08"
+      },
+      "covered_by": "tests/test_fixture_dataset.py::test_trap_stale_tail"
+    }
+  ]
+}

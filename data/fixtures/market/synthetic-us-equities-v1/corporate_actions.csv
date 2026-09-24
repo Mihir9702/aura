@@ -1,0 +1,2 @@
+action_id,instrument_id,action_type,ex_date,ratio_new,ratio_old,available_at
+ca-0001,inst_syn_0006,SPLIT,2025-03-20,2,1,2025-03-06T22:00:00Z

@@ -31,3 +31,4 @@ The original 0001–0014 records are preserved verbatim. Their historical unreso
 - [0022 Offline League and multi-metric evidence scorecards](0022-offline-evaluation.md)
 
 - [0023 Local foundation implementation boundaries](0023-local-foundation-implementation.md)
+- [0024 Synthetic fixture market data for the implementation pass](0024-synthetic-fixture-market-data.md)
