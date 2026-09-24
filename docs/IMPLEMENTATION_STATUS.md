@@ -15,6 +15,7 @@ The owner authorized implementation. This run delivers the first runnable M0/M1 
 | Events | Outbox/inbox acknowledgement with commit-order-gap test | Scheduler, substantive consumers, dead-letter/redrive, operational SLIs |
 | UI/contracts | Authenticated overview, Ledger records, readiness and controls; SSE/refetch; generated Overview schema/types | Full proposal/Committee/order/report/research flows; ADIYA-informed refinement |
 | Research/knowledge | Explicit unavailable states and architectural specifications | Backtesting, League metrics, corpus/retrieval, prospective strategy evaluation |
+| Market data (S03) | `aura.data` ports (`MarketDataProvider`, `ObservationReader`); synthetic fixture replay that verifies manifest SHA-256 and row counts and refuses to load on a mismatch; immutable BAR observations with provenance class `SYNTHETIC_FIXTURE`; quarantine reason codes; identity deduplication and conflict quarantine; manifest-bound resumable cursor; in-memory point-in-time reader for unit tests; 28 unit tests | Vendor adapter (OD-04); durable observation, quarantine and manifest storage; universe-membership and corporate-action normalization; completeness/staleness metrics and thresholds; health-gate wiring |
 
 ## Verified
 
