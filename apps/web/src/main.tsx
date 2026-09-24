@@ -270,7 +270,7 @@ function App() {
         <div className="sidebar-note">
           <div>
             <Compass size={20} />
-            <Badge tone="mint">M0 / M1</Badge>
+            <Badge tone="accent">M0 / M1</Badge>
           </div>
           <strong>Built on evidence.</strong>
           <p>
@@ -305,7 +305,7 @@ function App() {
             Workspace <ChevronRight size={13} /> <strong>{page}</strong>
           </div>
           <div className="header-right">
-            <Badge tone="mint">PAPER</Badge>
+            <Badge tone="accent">PAPER</Badge>
             <span className="header-divider" />
             <span className="owner-avatar">M</span>
           </div>
@@ -454,7 +454,7 @@ function App() {
                       <strong>Paper Ledger initialized</strong>
                       <small>One canonical source of portfolio truth</small>
                     </div>
-                    <Badge tone="mint">Ready</Badge>
+                    <Badge tone="accent">Ready</Badge>
                   </div>
                   {[
                     "Market data provider",
@@ -628,7 +628,7 @@ function App() {
               <section className="panel">
                 <div className="panel-title">
                   <h2>Dependencies</h2>
-                  <Badge tone="mint">PostgreSQL connected</Badge>
+                  <Badge tone="accent">PostgreSQL connected</Badge>
                 </div>
                 {data.integrations.map((item) => (
                   <div className="activity-row" key={item.name}>
