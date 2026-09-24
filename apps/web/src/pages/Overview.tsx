@@ -15,8 +15,7 @@ export function OverviewPage({ data, events, navigate }: PageProps) {
           <Badge>Auditable by design</Badge>
         </div>
         {events
-          .slice(-5)
-          .reverse()
+          .slice(0, 5)
           .map((event) => (
             <div className="activity-row" key={event.event_id}>
               <CircleDot size={16} />
