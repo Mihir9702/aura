@@ -2,7 +2,8 @@
 
 No high-watermark cursor is used: commit order may differ from sequence order.
 Inbox writes and consumption commit together, and locked events prevent duplicate
-local acknowledgement across competing workers.
+local acknowledgement across competing workers. The worker also applies committed
+SHADOW fixture fill receipts from their events, each exactly once; it never submits.
 """
 
 import time
@@ -12,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from aura.config import Settings
 from aura.events import Event, Inbox
+from aura.execution import apply_received_fills
 from aura.storage import Database
 
 CONSUMER = "foundation-audit-v1"
@@ -39,6 +41,8 @@ def main() -> None:
         while True:
             with db.transaction() as session:
                 acknowledge_batch(session)
+            with db.transaction() as session:
+                apply_received_fills(session)
             time.sleep(2)
     finally:
         db.engine.dispose()

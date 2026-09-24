@@ -83,11 +83,11 @@ def test_funding_once_and_fractional_example(db):
         assert D(state["cash"]) + D("1.75") * 110 == D("524.25")
 
 
-def test_conflicting_duplicate_rolls_back(db):
+def test_conflicting_duplicate_is_quarantined_not_applied(db):
     reserve(db)
     fill(db, "buy", "e1", "1", "100", ".25")
-    with pytest.raises(Conflict):
-        fill(db, "buy", "e1", "2", "100", ".25")
+    # Since S05 the conflicting delivery commits to quarantine instead of raising.
+    fill(db, "buy", "e1", "2", "100", ".25")
     with db.transaction() as s:
         assert s.get(FixtureOrder, "buy").filled == 1
 

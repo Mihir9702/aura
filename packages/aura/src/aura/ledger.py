@@ -1,7 +1,10 @@
 """Canonical journals and isolated M1 fixture accounting.
 
-The fixture execution API rejects ACTIVE_PAPER portfolios. FIFO, fee-expensing
-and immediate settlement are explicit test assumptions, not production defaults.
+The Ledger books execution receipts through apply_fill, keyed by receipt: a receipt's journal
+source is "receipt:<receipt id>", unique in PostgreSQL, so no receipt posts twice. Fixture
+orders, reservations and receipts belong to aura.execution; the old names stay importable
+from here. The fixture path rejects ACTIVE_PAPER portfolios. FIFO, fee-expensing and
+immediate settlement are explicit test assumptions, not production defaults.
 """
 
 from decimal import Decimal
@@ -18,7 +21,13 @@ from aura.operations import locked_gate
 from aura.storage import Base
 
 ZERO = Decimal("0")
+EIGHT_PLACES = Decimal("0.00000001")
 FIXTURE_POLICY = "FIFO_FEE_EXPENSE_IMMEDIATE_V1"
+RECEIPT_SOURCE = "receipt:"
+
+
+class LedgerRejected(Conflict):
+    """Booking a fill would break a Ledger invariant. Nothing was written."""
 
 
 class Portfolio(Base):
@@ -59,23 +68,6 @@ class Lot(Base):
     basis: Mapped[Decimal] = mapped_column(Numeric(28, 8))
 
 
-class FixtureOrder(Base):
-    __tablename__ = "fixture_orders"
-    __table_args__ = (CheckConstraint("quantity > 0 AND filled >= 0 AND filled <= quantity"),)
-    id: Mapped[str] = mapped_column(String, primary_key=True)
-    portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolios.id"))
-    instrument: Mapped[str] = mapped_column(String)
-    strategy_scope: Mapped[str] = mapped_column(String)
-    side: Mapped[str] = mapped_column(String)
-    quantity: Mapped[Decimal] = mapped_column(Numeric(28, 8))
-    filled: Mapped[Decimal] = mapped_column(Numeric(28, 8), default=ZERO)
-    price_bound: Mapped[Decimal] = mapped_column(Numeric(28, 8))
-    fee_budget: Mapped[Decimal] = mapped_column(Numeric(28, 8))
-    fees_paid: Mapped[Decimal] = mapped_column(Numeric(28, 8), default=ZERO)
-    state: Mapped[str] = mapped_column(String, default="AUTHORIZED")
-    gate_version: Mapped[int] = mapped_column(Integer)
-
-
 def balances(session: Session, portfolio_id: str) -> dict[str, Decimal]:
     totals: dict[str, Decimal] = {}
     rows = session.execute(
@@ -88,13 +80,27 @@ def balances(session: Session, portfolio_id: str) -> dict[str, Decimal]:
     return totals
 
 
+def held_quantity(session: Session, portfolio_id: str, instrument: str, scope: str) -> Decimal:
+    """Quantity held in a portfolio's lots for one instrument and strategy scope."""
+    return sum(
+        session.scalars(
+            select(Lot.quantity).where(
+                Lot.portfolio_id == portfolio_id,
+                Lot.instrument == instrument,
+                Lot.strategy_scope == scope,
+            )
+        ),
+        ZERO,
+    )
+
+
 def post(
     session: Session,
     portfolio: Portfolio,
     source: str,
     facts: dict[str, Any],
     entries: dict[str, Decimal],
-) -> None:
+) -> str:
     entries = {key: amount(value) for key, value in entries.items() if value != ZERO}
     if sum(entries.values(), ZERO) != ZERO or not entries:
         raise ValueError("Unbalanced or empty journal")
@@ -113,6 +119,7 @@ def post(
         {"journal_id": journal_id, "source": source},
     )
     session.flush()
+    return journal_id
 
 
 def fund(
@@ -155,169 +162,53 @@ def fixture_portfolio(session: Session, portfolio_id: str, policy: str) -> Portf
     return portfolio
 
 
-def reserve_fixture(
+def apply_fill(
     session: Session,
     *,
+    receipt_id: str,
     portfolio_id: str,
-    order_id: str,
+    policy: str,
     instrument: str,
     scope: str,
     side: str,
     quantity: Decimal,
-    price_bound: Decimal,
-    fee_budget: Decimal,
-    increment: Decimal,
-    fractional_supported: bool,
-    policy: str,
-) -> FixtureOrder:
-    portfolio = fixture_portfolio(session, portfolio_id, policy)
-    gate = locked_gate(session)
-    quantity, price_bound, fee_budget, increment = map(
-        amount, (quantity, price_bound, fee_budget, increment)
-    )
-    if side not in {"BUY", "SELL"} or min(quantity, price_bound, increment) <= 0 or fee_budget < 0:
-        raise ValueError("Invalid long-only fixture order")
-    if quantity % increment or (not fractional_supported and quantity % 1):
-        raise Conflict("Unsupported fractional quantity or increment")
-    existing = session.get(FixtureOrder, order_id)
-    if existing:
-        if (
-            existing.portfolio_id,
-            existing.instrument,
-            existing.strategy_scope,
-            existing.side,
-            existing.quantity,
-            existing.price_bound,
-            existing.fee_budget,
-        ) != (portfolio_id, instrument, scope, side, quantity, price_bound, fee_budget):
-            raise Conflict("Order identity reused with different intent")
-        return existing
-    if gate.full_kill or (gate.entry_halt and side == "BUY"):
-        raise Conflict("Capability control blocks order")
-    pending = session.scalars(
-        select(FixtureOrder).where(
-            FixtureOrder.portfolio_id == portfolio_id,
-            FixtureOrder.state.not_in(["CANCELED", "FILLED"]),
-        )
-    ).all()
-    if side == "BUY":
-        reserved = sum(
-            (
-                (o.quantity - o.filled) * o.price_bound + o.fee_budget - o.fees_paid
-                for o in pending
-                if o.side == "BUY"
-            ),
-            ZERO,
-        )
-        if (
-            quantity * price_bound + fee_budget
-            > balances(session, portfolio_id).get("cash", ZERO) - reserved
-        ):
-            raise Conflict("Insufficient shared cash including pending reservations")
-    else:
-        held = sum(
-            (
-                lot.quantity
-                for lot in session.scalars(
-                    select(Lot).where(
-                        Lot.portfolio_id == portfolio_id,
-                        Lot.instrument == instrument,
-                        Lot.strategy_scope == scope,
-                    )
-                )
-            ),
-            ZERO,
-        )
-        reserved = sum(
-            (
-                o.quantity - o.filled
-                for o in pending
-                if o.side == "SELL" and o.instrument == instrument and o.strategy_scope == scope
-            ),
-            ZERO,
-        )
-        if quantity > held - reserved:
-            raise Conflict("Exit would oversell owned unreserved strategy lots")
-        if quantity * price_bound < fee_budget:
-            raise Conflict("Fee budget could require additional cash for exit")
-    order = FixtureOrder(
-        id=order_id,
-        portfolio_id=portfolio_id,
-        instrument=instrument,
-        strategy_scope=scope,
-        side=side,
-        quantity=quantity,
-        price_bound=price_bound,
-        fee_budget=fee_budget,
-        filled=ZERO,
-        fees_paid=ZERO,
-        state="AUTHORIZED",
-        gate_version=gate.version,
-    )
-    session.add(order)
-    portfolio.version += 1
-    emit(
-        session,
-        "FIXTURE_ORDER_RESERVED",
-        portfolio_id,
-        portfolio.version,
-        order_id,
-        {"order_id": order_id, "environment": "SHADOW"},
-    )
-    session.flush()
-    return order
-
-
-def apply_fixture_fill(
-    session: Session,
-    *,
-    order_id: str,
-    execution_id: str,
-    quantity: Decimal,
     price: Decimal,
     fee: Decimal,
-    policy: str,
-) -> None:
-    locked_gate(session)
-    order = session.get(FixtureOrder, order_id)
-    if not order:
-        raise Conflict("Orphan execution; reconciliation required")
-    portfolio = fixture_portfolio(session, order.portfolio_id, policy)
+    facts: dict[str, Any],
+) -> str:
+    """Book one execution receipt and return its journal ID.
+
+    Every check precedes every write, so LedgerRejected leaves nothing behind. A receipt that
+    was already posted raises Conflict: callers apply a receipt only while it is unapplied, and
+    the unique journal source makes a second posting impossible. This is a receipt, not a
+    submission, so Entry Halt and Full Kill do not apply.
+    """
+    portfolio = fixture_portfolio(session, portfolio_id, policy)
+    source = RECEIPT_SOURCE + receipt_id
+    if session.scalars(select(Journal.id).where(Journal.source_key == source)).first():
+        raise Conflict("Receipt already posted; reconciliation required")
     quantity, price, fee = map(amount, (quantity, price, fee))
-    facts = {
-        "kind": "FILL",
-        "order_id": order_id,
-        "quantity": str(quantity),
-        "price": str(price),
-        "fee": str(fee),
-        "policy": policy,
-    }
-    source = "fixture-fill:" + execution_id
-    previous = session.scalars(select(Journal).where(Journal.source_key == source)).first()
-    if previous:
-        if previous.facts != facts:
-            raise Conflict("Execution identity reused with conflicting facts")
-        return
-    if quantity <= 0 or price <= 0 or fee < 0 or order.filled + quantity > order.quantity:
-        raise Conflict("Invalid fill quantity/price/fee")
-    if order.fees_paid + fee > order.fee_budget:
-        raise Conflict("Fixture fee assumption exceeded; reconciliation required")
-    if (order.side == "BUY" and price > order.price_bound) or (
-        order.side == "SELL" and price < order.price_bound
-    ):
-        raise Conflict("Fixture execution outside authorized price bound")
-    # This is a receipt, not a new submission: Full Kill must not prevent posting.
-    value = amount(quantity * price)
-    if order.side == "BUY":
-        if value + fee > balances(session, portfolio.id).get("cash", ZERO):
-            raise Conflict("Execution creates negative cash; reconciliation required")
+    if side not in {"BUY", "SELL"} or min(quantity, price) <= 0 or fee < 0:
+        raise LedgerRejected("A fill needs a side, positive quantity and price, nonnegative fee")
+    # Stored decimals carry scale 8, so compare the exact product with its 8-place form.
+    product = quantity * price
+    try:
+        value = amount(product.quantize(EIGHT_PLACES))
+    except (ArithmeticError, ValueError) as unsupported:
+        raise LedgerRejected("Fill value exceeds supported decimal precision") from unsupported
+    if value != product:
+        raise LedgerRejected("Fill value exceeds supported decimal precision")
+    cash = balances(session, portfolio.id).get("cash", ZERO)
+    if side == "BUY":
+        if value + fee > cash:
+            raise LedgerRejected("Fill would create negative cash")
         session.add(
             Lot(
-                id=execution_id,
+                id=receipt_id,
                 ordinal=portfolio.version,
                 portfolio_id=portfolio.id,
-                instrument=order.instrument,
-                strategy_scope=order.strategy_scope,
+                instrument=instrument,
+                strategy_scope=scope,
                 quantity=quantity,
                 basis=value,
             )
@@ -328,19 +219,23 @@ def apply_fixture_fill(
             select(Lot)
             .where(
                 Lot.portfolio_id == portfolio.id,
-                Lot.instrument == order.instrument,
-                Lot.strategy_scope == order.strategy_scope,
+                Lot.instrument == instrument,
+                Lot.strategy_scope == scope,
                 Lot.quantity > 0,
             )
             .order_by(Lot.ordinal, Lot.id)
         ).all()
+        if sum((lot.quantity for lot in lots), ZERO) < quantity:
+            raise LedgerRejected("Fill would oversell holdings")
+        if cash + value - fee < 0:
+            raise LedgerRejected("Fill would create negative cash")
         remaining, basis = quantity, ZERO
         for lot in lots:
             take = min(remaining, lot.quantity)
             removed_basis = (
                 lot.basis
                 if take == lot.quantity
-                else (lot.basis * take / lot.quantity).quantize(Decimal("0.00000001"))
+                else (lot.basis * take / lot.quantity).quantize(EIGHT_PLACES)
             )
             lot.quantity -= take
             lot.basis -= removed_basis
@@ -348,18 +243,23 @@ def apply_fixture_fill(
             remaining -= take
             if remaining == 0:
                 break
-        if remaining:
-            raise Conflict("Fill oversells holdings; reconciliation required")
         entries = {
             "cash": value - fee,
             "security_cost": -basis,
             "realized_gain": -(value - basis),
             "fees": fee,
         }
-    order.filled += quantity
-    order.fees_paid += fee
-    order.state = "FILLED" if order.filled == order.quantity else "PARTIALLY_FILLED"
-    post(session, portfolio, source, facts, entries)
+    booked = {
+        "kind": "FILL",
+        **facts,
+        "receipt_id": receipt_id,
+        "side": side,
+        "quantity": format(quantity, "f"),
+        "price": format(price, "f"),
+        "fee": format(fee, "f"),
+        "policy": policy,
+    }
+    return post(session, portfolio, source, booked, entries)
 
 
 def snapshot(session: Session, portfolio_id: str) -> dict[str, Any]:
@@ -393,3 +293,16 @@ def snapshot(session: Session, portfolio_id: str) -> dict[str, Any]:
             for lot in lots
         ],
     }
+
+
+# Fixture orders, reservations and fills moved to aura.execution (S05). Resolving them lazily
+# keeps `from aura.ledger import FixtureOrder` working without an import cycle.
+_MOVED_TO_EXECUTION = frozenset({"FixtureOrder", "reserve_fixture", "apply_fixture_fill"})
+
+
+def __getattr__(name: str) -> Any:
+    if name in _MOVED_TO_EXECUTION:
+        from aura import execution
+
+        return getattr(execution, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
