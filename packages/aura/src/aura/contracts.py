@@ -1,6 +1,6 @@
 """Implemented API contracts. Trading proposal contracts remain design specifications."""
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -63,3 +63,25 @@ class Overview(Contract):
     integrations: list[Integration]
     regime: RegimeReadiness
     execution_enabled: Literal[False]
+
+
+class JournalRecord(Contract):
+    """A committed Ledger journal of the challenge portfolio."""
+
+    id: str
+    source: str
+    facts: dict[str, Any]
+
+
+class EventRecord(Contract):
+    """An outbox event. The sequence orders the feed; it is not a delivery cursor."""
+
+    sequence: int
+    event_id: str
+    event_type: str
+    aggregate_id: str
+    aggregate_version: int
+    correlation_id: str
+    payload: dict[str, Any]
+    recorded_at: str
+    schema_version: int
