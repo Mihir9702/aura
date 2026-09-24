@@ -13,7 +13,7 @@ The owner authorized implementation. This run delivers the first runnable M0/M1 
 | Controls | Persistent Entry Halt/Full Kill, expected-version/idempotent owner commands, audit; pure health-gate function | Real probes, automatic trigger policy, cancellation delivery, verified human re-arm |
 | Risk/strategy/regime | Capacity sizing, five unimplemented registry entries, lifecycle and temporal validators | Full risk rules, numeric profiles, persistent scoped qualification/activation, methodologies and regime computation |
 | Events | Outbox/inbox acknowledgement with commit-order-gap test | Scheduler, substantive consumers, dead-letter/redrive, operational SLIs |
-| UI/contracts | Authenticated overview, Ledger records, readiness and controls; SSE/refetch; generated Overview schema/types | Full proposal/Committee/order/report/research flows; ADIYA-informed refinement |
+| UI/contracts | Authenticated overview, Ledger records, readiness and controls; hash-linked pages; SSE/refetch; generated Overview schema/types; decimal money display without float conversion; Vitest units for formatting and routes | Full proposal/Committee/order/report/research flows; ADIYA-informed refinement |
 | Research/knowledge | Explicit unavailable states and architectural specifications | Backtesting, League metrics, corpus/retrieval, prospective strategy evaluation |
 
 ## Verified

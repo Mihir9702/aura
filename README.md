@@ -6,14 +6,14 @@ A single-owner research workspace for US-listed stocks and ETFs. It is designed 
 
 ## What's in the repo
 
-- **A runnable foundation:** an authenticated web app, a double-entry accounting ledger, safety controls, event plumbing, 24 backend tests and Playwright browser tests.
+- **A runnable foundation:** an authenticated web app, a double-entry accounting ledger, safety controls, event plumbing, 24 backend tests, web unit tests and Playwright browser tests.
 - **A full design package:** an 18-chapter [Design Bible](docs/design-bible/README.md), 23 [architecture decision records](docs/adr/README.md) and 20 [Mermaid diagrams](docs/diagrams/README.md). Together they cover the complete platform: strategy pods, a deterministic market-regime engine, a multi-role AI committee, portfolio and risk management, paper execution and an offline evaluation league.
 
 ## What works
 
 | Area | Implemented |
 |---|---|
-| Web workspace | React / TypeScript / Vite / Tailwind: portfolio and ledger records, strategy-pod registry, research readiness, dependency health and owner controls. Live updates over Server-Sent Events, with an authoritative refetch on reconnect. |
+| Web workspace | React / TypeScript / Vite / Tailwind: portfolio and ledger records, strategy-pod registry, research readiness, dependency health and owner controls. Each page has its own link, such as `#/portfolio`. Live updates over Server-Sent Events, with an authoritative refetch on reconnect. |
 | Owner auth | Single-owner key sign-in. Session tokens are stored server-side as SHA-256 hashes, expire after 8 hours and can be revoked. HttpOnly `SameSite=Strict` cookie, origin checks on commands, 5-attempts-per-minute sign-in throttle, loopback-only servers. |
 | Ledger | Balanced, append-only, transaction-sealed double-entry journals in PostgreSQL, using decimal arithmetic. A once-only $500.00 simulated starting balance. |
 | Safety controls | Persistent, audited **Entry Halt**, which blocks new or larger positions, and **Full Kill**, which blocks all order submissions. Both are driven by idempotent, version-checked owner commands. Re-arming after Full Kill fails closed until real reconciliation checks exist. |
@@ -55,7 +55,7 @@ The target design is an event-driven modular monolith. Its load-bearing rules:
 
 ## Tech stack
 
-Python 3.12, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL 17, uv · React 19, TypeScript, Vite 7, Tailwind CSS 4 · pytest, Ruff, mypy (strict), Playwright
+Python 3.12, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL 17, uv · React 19, TypeScript, Vite 7, Tailwind CSS 4 · pytest, Ruff, mypy (strict), Vitest, Playwright
 
 ## Run it locally (Windows PowerShell)
 
@@ -78,7 +78,8 @@ Open http://127.0.0.1:5173 and sign in with `AURA_OWNER_KEY` from the generated 
 ## Tests and checks
 
 ```powershell
-./scripts/check.ps1                            # Ruff, mypy, 13 domain tests, production web build
+./scripts/check.ps1                            # Ruff, mypy, 13 domain tests, web unit tests, production web build
+npm run test -w apps/web                       # Web unit tests only (Vitest)
 ./scripts/test-integration.ps1                 # 11 PostgreSQL tests on a dedicated aura_test database
 ./scripts/contracts.ps1                        # Regenerate the OpenAPI schema and TypeScript types
 npm run test:e2e                               # Playwright browser tests; needs the running app and Chrome
