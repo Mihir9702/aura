@@ -1,6 +1,6 @@
 """Data module: provider port, synthetic fixture replay, normalization and as-of reads.
 
-Implemented subset (S03): BAR observation contracts and the provider/reader ports.
+Implemented subset (S03): BAR contracts, ports, normalization and an in-memory reader.
 No vendor feed, persistence, universe/corporate-action normalization or quality thresholds
 exist yet; see docs/IMPLEMENTATION_STATUS.md.
 """
@@ -26,6 +26,8 @@ from aura.data.contracts import (
     content_fingerprint,
     observation_id,
 )
+from aura.data.memory_store import IngestReport, InMemoryObservationStore
+from aura.data.normalize import NormalizedBatch, normalize_bars
 from aura.data.ports import (
     AsOfRead,
     Cursor,
@@ -52,16 +54,17 @@ __all__ = [
     "AvailabilityBasis",
     "BarInterval",
     "BarPayload",
-    "content_fingerprint",
     "Cursor",
     "CursorMismatch",
     "FixtureWeekdayCalendarV1",
     "HealthStatus",
+    "InMemoryObservationStore",
+    "IngestReport",
     "Instrument",
     "InstrumentUnavailable",
     "MarketDataProvider",
     "MarketObservation",
-    "observation_id",
+    "NormalizedBatch",
     "ObservationKind",
     "ObservationReader",
     "ProvenanceClass",
@@ -79,4 +82,7 @@ __all__ = [
     "SymbolPeriod",
     "TradingSession",
     "UnavailableReason",
+    "content_fingerprint",
+    "normalize_bars",
+    "observation_id",
 ]
