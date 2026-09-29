@@ -101,6 +101,8 @@ uv run python scripts/backup_restore_check.py  # Restore drill (native PostgreSQ
 | `docs` | Design Bible, ADRs, diagrams, status |
 | [`Aura_Seed.md`](Aura_Seed.md) | The original product brief |
 
-## License
+## Copyright and reuse
 
-[MIT](LICENSE)
+Aura is source-visible, but the current project is **not released under an open-source license**. See [COPYRIGHT.md](COPYRIGHT.md).
+
+Earlier public revisions were released under MIT; rights already granted for those revisions remain in effect.
