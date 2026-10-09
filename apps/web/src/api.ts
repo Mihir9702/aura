@@ -5,7 +5,7 @@ export type Portfolio = components["schemas"]["PortfolioSnapshot"];
 export type Strategy = components["schemas"]["Strategy"];
 export type ControlName = "entry_halt" | "full_kill";
 
-// /api/health, /api/events and /api/journals are not in the generated schema yet
+// These stable display types remain explicit for the ledger-style web interface.
 export type Health = {
   database: string;
   execution: string;

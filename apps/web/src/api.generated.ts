@@ -107,6 +107,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Jobs */
+        get: operations["list_jobs_api_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jobs/dead-letters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Dead Letters */
+        get: operations["dead_letters_api_jobs_dead_letters_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jobs/{job_id}/redrive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Redrive
+         * @description Requeue a dead letter with its identity; audited as JOB_REDRIVEN in the outbox.
+         */
+        post: operations["redrive_api_jobs__job_id__redrive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/stream": {
         parameters: {
             query?: never;
@@ -118,6 +172,131 @@ export interface paths {
         get: operations["stream_api_stream_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/scopes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Strategy Scopes */
+        get: operations["list_strategy_scopes_api_strategies_scopes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/scopes/{scope_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Strategy Scope */
+        get: operations["get_strategy_scope_api_strategies_scopes__scope_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/scopes/{scope_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Strategy Scope History */
+        get: operations["strategy_scope_history_api_strategies_scopes__scope_id__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/scopes/{scope_id}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Suspend Strategy Scope
+         * @description Suspend from any state: blocks new or increasing exposure, advances the generation.
+         */
+        post: operations["suspend_strategy_scope_api_strategies_scopes__scope_id__suspend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/scopes/{scope_id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resume Strategy Scope
+         * @description Resume a suspended scope to DEVELOPMENT only.
+         */
+        post: operations["resume_strategy_scope_api_strategies_scopes__scope_id__resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/execution/quarantine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Quarantine */
+        get: operations["quarantine_api_execution_quarantine_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/execution/quarantine/{quarantine_id}/redrive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Redrive */
+        post: operations["redrive_api_execution_quarantine__quarantine_id__redrive_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -151,6 +330,32 @@ export interface components {
             /** Full Kill */
             full_kill: boolean;
         };
+        /**
+         * EventRecord
+         * @description An outbox event. Feeds list the newest (highest sequence) first; not a cursor.
+         */
+        EventRecord: {
+            /** Sequence */
+            sequence: number;
+            /** Event Id */
+            event_id: string;
+            /** Event Type */
+            event_type: string;
+            /** Aggregate Id */
+            aggregate_id: string;
+            /** Aggregate Version */
+            aggregate_version: number;
+            /** Correlation Id */
+            correlation_id: string;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Recorded At */
+            recorded_at: string;
+            /** Schema Version */
+            schema_version: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -165,6 +370,95 @@ export interface components {
              * @constant
              */
             status: "NOT_CONFIGURED";
+        };
+        /**
+         * JobCommandResult
+         * @description The job's version after an audited command, or the recorded one on replay.
+         */
+        JobCommandResult: {
+            /** Job Id */
+            job_id: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * JobRecord
+         * @description A durable job. Dead letters are jobs in state DEAD; a redrive keeps id and keys.
+         */
+        JobRecord: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            job_class: components["schemas"]["WorkClass"];
+            /** Scope */
+            scope: string;
+            /** Occurrence Key */
+            occurrence_key: string;
+            /** Correlation Id */
+            correlation_id: string;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Input Version */
+            input_version: number | null;
+            /** Priority */
+            priority: number;
+            state: components["schemas"]["JobState"];
+            /** Version */
+            version: number;
+            /** Attempts */
+            attempts: number;
+            /** Max Attempts */
+            max_attempts: number;
+            /** Redrives */
+            redrives: number;
+            /** Fencing Token */
+            fencing_token: number;
+            /** Lease Owner */
+            lease_owner: string | null;
+            /** Lease Expires At */
+            lease_expires_at: string | null;
+            /** Scheduled At */
+            scheduled_at: string;
+            /** Available At */
+            available_at: string;
+            /** Deadline */
+            deadline: string | null;
+            /** Terminal Reason */
+            terminal_reason: string | null;
+            /** Last Error */
+            last_error: string | null;
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            } | null;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /**
+         * JobState
+         * @enum {string}
+         */
+        JobState: "QUEUED" | "RUNNING" | "SUCCEEDED" | "DEAD" | "EXPIRED";
+        /**
+         * JournalRecord
+         * @description A committed Ledger journal of the challenge portfolio.
+         */
+        JournalRecord: {
+            /** Id */
+            id: string;
+            /** Source */
+            source: string;
+            /** Facts */
+            facts: {
+                [key: string]: unknown;
+            };
         };
         /** Login */
         Login: {
@@ -244,6 +538,80 @@ export interface components {
             /** Cost Basis */
             cost_basis: string;
         };
+        /**
+         * QuarantineRecord
+         * @description An open execution quarantine entry and its receipt identity (SHADOW fixtures only).
+         *
+         *     A null portfolio_id means the receipt could not be attributed, which blocks new
+         *     reservations for every portfolio. Redrive with the current version.
+         */
+        QuarantineRecord: {
+            /** Id */
+            id: string;
+            /** Receipt Id */
+            receipt_id: string;
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "CONFLICTING_DUPLICATE" | "UNSUPPORTED_REVISION" | "UNKNOWN_ACCOUNT" | "ORPHAN" | "OUT_OF_BOUNDS" | "LEDGER_REJECTED";
+            /** Detail */
+            detail: string;
+            /** Version */
+            version: number;
+            /** Created At */
+            created_at: string;
+            /** Adapter Id */
+            adapter_id: string;
+            /** Adapter Account Id */
+            adapter_account_id: string;
+            /** Execution Id */
+            execution_id: string;
+            /** Revision */
+            revision: number;
+            /** Order Id */
+            order_id: string;
+        };
+        /** RedriveCommand */
+        RedriveCommand: {
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
+            /**
+             * Command Id
+             * Format: uuid
+             */
+            command_id: string;
+        };
+        /**
+         * RedriveResult
+         * @description Outcome of a quarantine redrive. A repeated command_id returns the recorded outcome.
+         */
+        RedriveResult: {
+            /** Quarantine Id */
+            quarantine_id: string;
+            /** Receipt Id */
+            receipt_id: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "APPLIED" | "STILL_QUARANTINED";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "OPEN" | "RESOLVED";
+            /** Version */
+            version: number;
+            /** Reason */
+            reason: ("CONFLICTING_DUPLICATE" | "UNSUPPORTED_REVISION" | "UNKNOWN_ACCOUNT" | "ORPHAN" | "OUT_OF_BOUNDS" | "LEDGER_REJECTED") | null;
+            /** Journal Id */
+            journal_id: string | null;
+        };
         /** RegimeReadiness */
         RegimeReadiness: {
             /**
@@ -267,6 +635,160 @@ export interface components {
             /** Implementation */
             implementation: string;
         };
+        /**
+         * StrategyHorizon
+         * @description A horizon specification; UNAPPROVED until its definition is decided (OD-03).
+         */
+        StrategyHorizon: {
+            /** Id */
+            id: string;
+            /** Version */
+            version: number;
+            /**
+             * Approval
+             * @enum {string}
+             */
+            approval: "UNAPPROVED" | "APPROVED";
+            /** Decision Ref */
+            decision_ref: string;
+            /** Description */
+            description: string;
+        };
+        /**
+         * StrategyPodVersion
+         * @description A Pod methodology version. Version 0 is the unimplemented placeholder.
+         */
+        StrategyPodVersion: {
+            /** Id */
+            id: string;
+            /** Version */
+            version: number;
+            /**
+             * Name
+             * @enum {string}
+             */
+            name: "MOMENTUM" | "BREAKOUT" | "EVENT_CATALYST" | "MEAN_REVERSION" | "SWING_TREND";
+            /** Display Name */
+            display_name: string;
+            /**
+             * Implementation Status
+             * @enum {string}
+             */
+            implementation_status: "UNIMPLEMENTED" | "IMPLEMENTED" | "VERIFIED";
+        };
+        /**
+         * StrategyScope
+         * @description Lifecycle state of one Pod version and horizon version.
+         *
+         *     Every status change advances `version` and `eligibility_generation`. `universe_ref` is
+         *     null while no universe is approved (OD-02).
+         */
+        StrategyScope: {
+            /** Id */
+            id: string;
+            pod: components["schemas"]["StrategyPodVersion"];
+            horizon: components["schemas"]["StrategyHorizon"];
+            /** Universe Ref */
+            universe_ref: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "DEVELOPMENT" | "BACKTESTING" | "PAPER_SHADOW" | "QUALIFIED" | "ACTIVE_PAPER" | "SUSPENDED";
+            /** Previous State */
+            previous_state: ("DEVELOPMENT" | "BACKTESTING" | "PAPER_SHADOW" | "QUALIFIED" | "ACTIVE_PAPER" | "SUSPENDED") | null;
+            /** Version */
+            version: number;
+            /** Eligibility Generation */
+            eligibility_generation: number;
+            /** Qualification Id */
+            qualification_id: string | null;
+            /** Activation Id */
+            activation_id: string | null;
+            /** Reason */
+            reason: string;
+            /** Actor */
+            actor: string;
+            /**
+             * Changed At
+             * Format: date-time
+             */
+            changed_at: string;
+        };
+        /**
+         * StrategyScopeCommand
+         * @description Suspend or Resume. Replaying a command_id returns the recorded result; reusing it with
+         *     a different body, scope or command is refused with 409.
+         */
+        StrategyScopeCommand: {
+            /**
+             * Command Id
+             * Format: uuid
+             */
+            command_id: string;
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * StrategyScopeStatus
+         * @description The state a Suspend or Resume command recorded.
+         */
+        StrategyScopeStatus: {
+            /** Scope Id */
+            scope_id: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "DEVELOPMENT" | "BACKTESTING" | "PAPER_SHADOW" | "QUALIFIED" | "ACTIVE_PAPER" | "SUSPENDED";
+            /** Version */
+            version: number;
+            /** Eligibility Generation */
+            eligibility_generation: number;
+        };
+        /**
+         * StrategyStatusChange
+         * @description One STRATEGY_STATUS_CHANGED audit event of a scope. History lists oldest first.
+         */
+        StrategyStatusChange: {
+            /** Sequence */
+            sequence: number;
+            /** Event Id */
+            event_id: string;
+            /** Command Id */
+            command_id: string;
+            /** Scope Id */
+            scope_id: string;
+            /**
+             * Prior State
+             * @enum {string}
+             */
+            prior_state: "DEVELOPMENT" | "BACKTESTING" | "PAPER_SHADOW" | "QUALIFIED" | "ACTIVE_PAPER" | "SUSPENDED";
+            /**
+             * New State
+             * @enum {string}
+             */
+            new_state: "DEVELOPMENT" | "BACKTESTING" | "PAPER_SHADOW" | "QUALIFIED" | "ACTIVE_PAPER" | "SUSPENDED";
+            /** Prior Version */
+            prior_version: number;
+            /** Version */
+            version: number;
+            /** Prior Generation */
+            prior_generation: number;
+            /** Generation */
+            generation: number;
+            /** Actor */
+            actor: string;
+            /** Reason */
+            reason: string;
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at: string;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -280,6 +802,12 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /**
+         * WorkClass
+         * @description Chapter 08 work classes. Reconciliation and monitoring are safety work.
+         * @enum {string}
+         */
+        WorkClass: "RECONCILIATION" | "MONITORING" | "INGEST" | "ANALYSIS" | "RESEARCH";
     };
     responses: never;
     parameters: never;
@@ -403,9 +931,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    }[];
+                    "application/json": components["schemas"]["JournalRecord"][];
                 };
             };
         };
@@ -425,9 +951,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    }[];
+                    "application/json": components["schemas"]["EventRecord"][];
                 };
             };
         };
@@ -469,6 +993,92 @@ export interface operations {
             };
         };
     };
+    list_jobs_api_jobs_get: {
+        parameters: {
+            query?: {
+                state?: components["schemas"]["JobState"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobRecord"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dead_letters_api_jobs_dead_letters_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobRecord"][];
+                };
+            };
+        };
+    };
+    redrive_api_jobs__job_id__redrive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RedriveCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobCommandResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     stream_api_stream_get: {
         parameters: {
             query?: never;
@@ -485,6 +1095,213 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    list_strategy_scopes_api_strategies_scopes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyScope"][];
+                };
+            };
+        };
+    };
+    get_strategy_scope_api_strategies_scopes__scope_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scope_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyScope"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    strategy_scope_history_api_strategies_scopes__scope_id__history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scope_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyStatusChange"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suspend_strategy_scope_api_strategies_scopes__scope_id__suspend_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scope_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StrategyScopeCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyScopeStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resume_strategy_scope_api_strategies_scopes__scope_id__resume_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scope_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StrategyScopeCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyScopeStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    quarantine_api_execution_quarantine_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuarantineRecord"][];
+                };
+            };
+        };
+    };
+    redrive_api_execution_quarantine__quarantine_id__redrive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quarantine_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RedriveCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedriveResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

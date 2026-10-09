@@ -118,8 +118,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/JournalRecord"
                   },
                   "type": "array",
                   "title": "Response Journals Api Journals Get"
@@ -141,8 +140,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/EventRecord"
                   },
                   "type": "array",
                   "title": "Response Events Api Events Get"
@@ -204,6 +202,128 @@
         }
       }
     },
+    "/api/jobs": {
+      "get": {
+        "summary": "List Jobs",
+        "operationId": "list_jobs_api_jobs_get",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/JobState"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JobRecord"
+                  },
+                  "title": "Response List Jobs Api Jobs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/dead-letters": {
+      "get": {
+        "summary": "Dead Letters",
+        "operationId": "dead_letters_api_jobs_dead_letters_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JobRecord"
+                  },
+                  "type": "array",
+                  "title": "Response Dead Letters Api Jobs Dead Letters Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{job_id}/redrive": {
+      "post": {
+        "summary": "Redrive",
+        "description": "Requeue a dead letter with its identity; audited as JOB_REDRIVEN in the outbox.",
+        "operationId": "redrive_api_jobs__job_id__redrive_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedriveCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobCommandResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/stream": {
       "get": {
         "summary": "Stream",
@@ -214,6 +334,289 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strategies/scopes": {
+      "get": {
+        "summary": "List Strategy Scopes",
+        "operationId": "list_strategy_scopes_api_strategies_scopes_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StrategyScope"
+                  },
+                  "type": "array",
+                  "title": "Response List Strategy Scopes Api Strategies Scopes Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strategies/scopes/{scope_id}": {
+      "get": {
+        "summary": "Get Strategy Scope",
+        "operationId": "get_strategy_scope_api_strategies_scopes__scope_id__get",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Scope Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyScope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strategies/scopes/{scope_id}/history": {
+      "get": {
+        "summary": "Strategy Scope History",
+        "operationId": "strategy_scope_history_api_strategies_scopes__scope_id__history_get",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Scope Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StrategyStatusChange"
+                  },
+                  "title": "Response Strategy Scope History Api Strategies Scopes  Scope Id  History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strategies/scopes/{scope_id}/suspend": {
+      "post": {
+        "summary": "Suspend Strategy Scope",
+        "description": "Suspend from any state: blocks new or increasing exposure, advances the generation.",
+        "operationId": "suspend_strategy_scope_api_strategies_scopes__scope_id__suspend_post",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Scope Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StrategyScopeCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyScopeStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strategies/scopes/{scope_id}/resume": {
+      "post": {
+        "summary": "Resume Strategy Scope",
+        "description": "Resume a suspended scope to DEVELOPMENT only.",
+        "operationId": "resume_strategy_scope_api_strategies_scopes__scope_id__resume_post",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Scope Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StrategyScopeCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyScopeStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/execution/quarantine": {
+      "get": {
+        "summary": "Quarantine",
+        "operationId": "quarantine_api_execution_quarantine_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QuarantineRecord"
+                  },
+                  "type": "array",
+                  "title": "Response Quarantine Api Execution Quarantine Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/execution/quarantine/{quarantine_id}/redrive": {
+      "post": {
+        "summary": "Redrive",
+        "operationId": "redrive_api_execution_quarantine__quarantine_id__redrive_post",
+        "parameters": [
+          {
+            "name": "quarantine_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Quarantine Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedriveCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedriveResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -280,6 +683,62 @@
         ],
         "title": "Controls"
       },
+      "EventRecord": {
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "aggregate_id": {
+            "type": "string",
+            "title": "Aggregate Id"
+          },
+          "aggregate_version": {
+            "type": "integer",
+            "title": "Aggregate Version"
+          },
+          "correlation_id": {
+            "type": "string",
+            "title": "Correlation Id"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "recorded_at": {
+            "type": "string",
+            "title": "Recorded At"
+          },
+          "schema_version": {
+            "type": "integer",
+            "title": "Schema Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sequence",
+          "event_id",
+          "event_type",
+          "aggregate_id",
+          "aggregate_version",
+          "correlation_id",
+          "payload",
+          "recorded_at",
+          "schema_version"
+        ],
+        "title": "EventRecord",
+        "description": "An outbox event. Feeds list the newest (highest sequence) first; not a cursor."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -312,6 +771,259 @@
           "status"
         ],
         "title": "Integration"
+      },
+      "JobCommandResult": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "job_id",
+          "version"
+        ],
+        "title": "JobCommandResult",
+        "description": "The job's version after an audited command, or the recorded one on replay."
+      },
+      "JobRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "job_class": {
+            "$ref": "#/components/schemas/WorkClass"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          },
+          "occurrence_key": {
+            "type": "string",
+            "title": "Occurrence Key"
+          },
+          "correlation_id": {
+            "type": "string",
+            "title": "Correlation Id"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "input_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Version"
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Priority"
+          },
+          "state": {
+            "$ref": "#/components/schemas/JobState"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          },
+          "max_attempts": {
+            "type": "integer",
+            "title": "Max Attempts"
+          },
+          "redrives": {
+            "type": "integer",
+            "title": "Redrives"
+          },
+          "fencing_token": {
+            "type": "integer",
+            "title": "Fencing Token"
+          },
+          "lease_owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lease Owner"
+          },
+          "lease_expires_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lease Expires At"
+          },
+          "scheduled_at": {
+            "type": "string",
+            "title": "Scheduled At"
+          },
+          "available_at": {
+            "type": "string",
+            "title": "Available At"
+          },
+          "deadline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deadline"
+          },
+          "terminal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terminal Reason"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "job_class",
+          "scope",
+          "occurrence_key",
+          "correlation_id",
+          "payload",
+          "input_version",
+          "priority",
+          "state",
+          "version",
+          "attempts",
+          "max_attempts",
+          "redrives",
+          "fencing_token",
+          "lease_owner",
+          "lease_expires_at",
+          "scheduled_at",
+          "available_at",
+          "deadline",
+          "terminal_reason",
+          "last_error",
+          "result",
+          "created_at",
+          "updated_at",
+          "finished_at"
+        ],
+        "title": "JobRecord",
+        "description": "A durable job. Dead letters are jobs in state DEAD; a redrive keeps id and keys."
+      },
+      "JobState": {
+        "type": "string",
+        "enum": [
+          "QUEUED",
+          "RUNNING",
+          "SUCCEEDED",
+          "DEAD",
+          "EXPIRED"
+        ],
+        "title": "JobState"
+      },
+      "JournalRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "facts": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Facts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "facts"
+        ],
+        "title": "JournalRecord",
+        "description": "A committed Ledger journal of the challenge portfolio."
       },
       "Login": {
         "properties": {
@@ -496,6 +1208,194 @@
         ],
         "title": "Position"
       },
+      "QuarantineRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "receipt_id": {
+            "type": "string",
+            "title": "Receipt Id"
+          },
+          "portfolio_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portfolio Id"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "CONFLICTING_DUPLICATE",
+              "UNSUPPORTED_REVISION",
+              "UNKNOWN_ACCOUNT",
+              "ORPHAN",
+              "OUT_OF_BOUNDS",
+              "LEDGER_REJECTED"
+            ],
+            "title": "Reason"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "adapter_id": {
+            "type": "string",
+            "title": "Adapter Id"
+          },
+          "adapter_account_id": {
+            "type": "string",
+            "title": "Adapter Account Id"
+          },
+          "execution_id": {
+            "type": "string",
+            "title": "Execution Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "order_id": {
+            "type": "string",
+            "title": "Order Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "receipt_id",
+          "portfolio_id",
+          "reason",
+          "detail",
+          "version",
+          "created_at",
+          "adapter_id",
+          "adapter_account_id",
+          "execution_id",
+          "revision",
+          "order_id"
+        ],
+        "title": "QuarantineRecord",
+        "description": "An open execution quarantine entry and its receipt identity (SHADOW fixtures only).\n\nA null portfolio_id means the receipt could not be attributed, which blocks new\nreservations for every portfolio. Redrive with the current version."
+      },
+      "RedriveCommand": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 4,
+            "title": "Reason"
+          },
+          "command_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Command Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "reason",
+          "command_id"
+        ],
+        "title": "RedriveCommand"
+      },
+      "RedriveResult": {
+        "properties": {
+          "quarantine_id": {
+            "type": "string",
+            "title": "Quarantine Id"
+          },
+          "receipt_id": {
+            "type": "string",
+            "title": "Receipt Id"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "APPLIED",
+              "STILL_QUARANTINED"
+            ],
+            "title": "Outcome"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "RESOLVED"
+            ],
+            "title": "Status"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "CONFLICTING_DUPLICATE",
+                  "UNSUPPORTED_REVISION",
+                  "UNKNOWN_ACCOUNT",
+                  "ORPHAN",
+                  "OUT_OF_BOUNDS",
+                  "LEDGER_REJECTED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "journal_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Journal Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quarantine_id",
+          "receipt_id",
+          "outcome",
+          "status",
+          "version",
+          "reason",
+          "journal_id"
+        ],
+        "title": "RedriveResult",
+        "description": "Outcome of a quarantine redrive. A repeated command_id returns the recorded outcome."
+      },
       "RegimeReadiness": {
         "properties": {
           "status": {
@@ -550,6 +1450,369 @@
         ],
         "title": "Strategy"
       },
+      "StrategyHorizon": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "approval": {
+            "type": "string",
+            "enum": [
+              "UNAPPROVED",
+              "APPROVED"
+            ],
+            "title": "Approval"
+          },
+          "decision_ref": {
+            "type": "string",
+            "title": "Decision Ref"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "approval",
+          "decision_ref",
+          "description"
+        ],
+        "title": "StrategyHorizon",
+        "description": "A horizon specification; UNAPPROVED until its definition is decided (OD-03)."
+      },
+      "StrategyPodVersion": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "name": {
+            "type": "string",
+            "enum": [
+              "MOMENTUM",
+              "BREAKOUT",
+              "EVENT_CATALYST",
+              "MEAN_REVERSION",
+              "SWING_TREND"
+            ],
+            "title": "Name"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "implementation_status": {
+            "type": "string",
+            "enum": [
+              "UNIMPLEMENTED",
+              "IMPLEMENTED",
+              "VERIFIED"
+            ],
+            "title": "Implementation Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "name",
+          "display_name",
+          "implementation_status"
+        ],
+        "title": "StrategyPodVersion",
+        "description": "A Pod methodology version. Version 0 is the unimplemented placeholder."
+      },
+      "StrategyScope": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "pod": {
+            "$ref": "#/components/schemas/StrategyPodVersion"
+          },
+          "horizon": {
+            "$ref": "#/components/schemas/StrategyHorizon"
+          },
+          "universe_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Universe Ref"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "DEVELOPMENT",
+              "BACKTESTING",
+              "PAPER_SHADOW",
+              "QUALIFIED",
+              "ACTIVE_PAPER",
+              "SUSPENDED"
+            ],
+            "title": "State"
+          },
+          "previous_state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "DEVELOPMENT",
+                  "BACKTESTING",
+                  "PAPER_SHADOW",
+                  "QUALIFIED",
+                  "ACTIVE_PAPER",
+                  "SUSPENDED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous State"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "eligibility_generation": {
+            "type": "integer",
+            "title": "Eligibility Generation"
+          },
+          "qualification_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qualification Id"
+          },
+          "activation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activation Id"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "actor": {
+            "type": "string",
+            "title": "Actor"
+          },
+          "changed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Changed At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "pod",
+          "horizon",
+          "universe_ref",
+          "state",
+          "previous_state",
+          "version",
+          "eligibility_generation",
+          "qualification_id",
+          "activation_id",
+          "reason",
+          "actor",
+          "changed_at"
+        ],
+        "title": "StrategyScope",
+        "description": "Lifecycle state of one Pod version and horizon version.\n\nEvery status change advances `version` and `eligibility_generation`. `universe_ref` is\nnull while no universe is approved (OD-02)."
+      },
+      "StrategyScopeCommand": {
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Command Id"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 4,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "command_id",
+          "expected_version",
+          "reason"
+        ],
+        "title": "StrategyScopeCommand",
+        "description": "Suspend or Resume. Replaying a command_id returns the recorded result; reusing it with\na different body, scope or command is refused with 409."
+      },
+      "StrategyScopeStatus": {
+        "properties": {
+          "scope_id": {
+            "type": "string",
+            "title": "Scope Id"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "DEVELOPMENT",
+              "BACKTESTING",
+              "PAPER_SHADOW",
+              "QUALIFIED",
+              "ACTIVE_PAPER",
+              "SUSPENDED"
+            ],
+            "title": "State"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "eligibility_generation": {
+            "type": "integer",
+            "title": "Eligibility Generation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scope_id",
+          "state",
+          "version",
+          "eligibility_generation"
+        ],
+        "title": "StrategyScopeStatus",
+        "description": "The state a Suspend or Resume command recorded."
+      },
+      "StrategyStatusChange": {
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "command_id": {
+            "type": "string",
+            "title": "Command Id"
+          },
+          "scope_id": {
+            "type": "string",
+            "title": "Scope Id"
+          },
+          "prior_state": {
+            "type": "string",
+            "enum": [
+              "DEVELOPMENT",
+              "BACKTESTING",
+              "PAPER_SHADOW",
+              "QUALIFIED",
+              "ACTIVE_PAPER",
+              "SUSPENDED"
+            ],
+            "title": "Prior State"
+          },
+          "new_state": {
+            "type": "string",
+            "enum": [
+              "DEVELOPMENT",
+              "BACKTESTING",
+              "PAPER_SHADOW",
+              "QUALIFIED",
+              "ACTIVE_PAPER",
+              "SUSPENDED"
+            ],
+            "title": "New State"
+          },
+          "prior_version": {
+            "type": "integer",
+            "title": "Prior Version"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "prior_generation": {
+            "type": "integer",
+            "title": "Prior Generation"
+          },
+          "generation": {
+            "type": "integer",
+            "title": "Generation"
+          },
+          "actor": {
+            "type": "string",
+            "title": "Actor"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Recorded At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sequence",
+          "event_id",
+          "command_id",
+          "scope_id",
+          "prior_state",
+          "new_state",
+          "prior_version",
+          "version",
+          "prior_generation",
+          "generation",
+          "actor",
+          "reason",
+          "recorded_at"
+        ],
+        "title": "StrategyStatusChange",
+        "description": "One STRATEGY_STATUS_CHANGED audit event of a scope. History lists oldest first."
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -589,6 +1852,18 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "WorkClass": {
+        "type": "string",
+        "enum": [
+          "RECONCILIATION",
+          "MONITORING",
+          "INGEST",
+          "ANALYSIS",
+          "RESEARCH"
+        ],
+        "title": "WorkClass",
+        "description": "Chapter 08 work classes. Reconciliation and monitoring are safety work."
       }
     }
   }

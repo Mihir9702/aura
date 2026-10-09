@@ -1,0 +1,3 @@
+# Fixture datasets are verified byte-for-byte against manifest SHA-256 hashes.
+# Never convert their line endings on checkout, whatever core.autocrlf says.
+data/fixtures/** -text
