@@ -14,6 +14,7 @@ from aura.routes import (
     jobs,
     journals,
     overview,
+    quarantine,
     session,
     strategies,
     stream,
@@ -29,4 +30,5 @@ ROUTERS: tuple[APIRouter, ...] = (
     jobs.router,
     stream.router,
     strategies.router,
+    quarantine.router,
 )

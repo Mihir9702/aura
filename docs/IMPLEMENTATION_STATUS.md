@@ -16,12 +16,15 @@ The owner authorized implementation. This run delivers the first runnable M0/M1 
 At the pause, Ruff, strict mypy, 89 unit tests, 14 web tests, the production build, 33 PostgreSQL integration tests and the contract drift check all passed. Unmerged work waits on its own branches: `impl/s04` (strategy scopes, committed, final checks not yet run), `impl/s05` (execution receipts, partial), `impl/s07` (data store, early and uncommitted) and `impl/s08` (feature engine, nearly done but uncommitted). The owner decisions recorded in [chapter 18](design-bible/18-owner-decisions.md#implementation-pass-decisions-2026-09-23) still apply.
 **Resumed 2026-10-08 (isolated integration branch).** Strategy-scopes slice S04 is integrated into the preceding `implementation-pass` snapshot on `integration/resume-20261008`, including a single Alembic chain `0003_durable_jobs` -> `s04_strategy_scopes`. Verified on Windows: Ruff, strict mypy, 110 Python unit tests, 58 PostgreSQL integration tests against freshly created `aura_test_resume1008`, the OpenAPI drift check, 14 web unit tests and the production web build. Browser end-to-end tests and the backup/restore drill were not rerun. The original `implementation-pass` working tree and its two pre-existing modifications are untouched; S05, S07 and S08 remain in their original separate worktrees. This candidate is not yet on GitHub `main`, and there is still no market-data vendor, live strategy or paper order-submission endpoint.
 
+**Integrated S05 2026-10-08 (second isolated worktree).** The SHADOW-only execution receipt and quarantine slice now follows S04 on `integration/resume-s05-20261008`; the Alembic chain is `0003_durable_jobs` -> `s04_strategy_scopes` -> `s05_execution_receipts`. The worker preserves durable-job processing and additionally applies committed fixture fill receipts independently of Entry Halt/Full Kill. An additional integration regression verifies this connection under Full Kill. The original S05, S07 and S08 worktrees remain untouched. Nothing has been merged into public `main`.
+
 | Area | Implemented | Remaining |
 |---|---|---|
 | Runtime | Python 3.12/uv, FastAPI, SQLAlchemy/Alembic, PostgreSQL 17; React/TS/Vite/Tailwind; lockfiles; Windows scripts; parallel-safe integration databases (see [test harness](#test-harness)) | Hosted auth/runtime, CI, production privileges |
 | Local security | Random owner key, hashed session tokens/expiry/revocation, HttpOnly SameSite cookie, command/origin checks, loopback, basic login throttling | Hosted HTTPS/Secure cookies, shared throttling/hardening |
 | Ledger | $500 funding, balanced immutable transaction-sealed journals, decimal primitives | Production settlement/fee/lot policies; corrections/rebuild/corporate actions |
-| Fixture execution | SHADOW-only reservations/fractional FIFO fills; duplicate/conflicting IDs; unknown state retains capacity; no blind resubmit | Real simulator/adapter, durable receipt quarantine, full cancel/reconnect semantics |
+| Fixture execution | SHADOW-only reservations/fractional FIFO fills; duplicate/conflicting IDs; unknown state retains capacity; no blind resubmit | Real simulator/adapter, full cancel/reconnect semantics |
+| Durable receipts (S05) | Immutable committed SHADOW fixture fill receipts, apply-once Ledger posting, persisted quarantine and owner-only versioned redrive with audit; worker continues receipt processing even under Full Kill | Production broker adapter, complete reconciliation/cancel semantics, and non-fixture end-to-end execution remain unavailable |
 | Controls | Persistent Entry Halt/Full Kill, expected-version/idempotent owner commands, audit; pure health-gate function | Real probes, automatic trigger policy, cancellation delivery, verified human re-arm |
 | Market data fixture | `synthetic-us-equities-v1`, a SYNTHETIC_FIXTURE dataset (not market data): 12 fictional instruments, 380 FIXTURE_WEEKDAY_V1 sessions, 4,388 unadjusted daily bars, point-in-time reference files and 13 declared traps. The deterministic SplitMix64/Decimal generator regenerates byte-identical files; 30 tests check hashes, OHLC validity and every trap ([ADR-0024](adr/0024-synthetic-fixture-market-data.md)) | Real provider selection and qualification (OD-04), exchange calendar (OD-03), corporate-action support, Parquet publication |
 | Risk/strategy/regime | Capacity sizing, five unimplemented registry entries, lifecycle and temporal validators; persisted strategy scopes (next row) | Full risk rules, numeric profiles, methodologies and regime computation |
@@ -55,11 +58,12 @@ Correction verification: backend-only launcher reached API/database readiness ag
 
 These results do not imply all 32 design acceptance cases pass. Test dependencies emit upstream Starlette/httpx deprecation warnings. One mixed sandbox/user pytest-cache warning occurred; current integration commands disable that cache.
 
+**S04+S05 integration verification (2026-10-08):** Ruff and strict mypy passed, 115 Python unit tests passed, 81 PostgreSQL integration tests passed on a freshly recreated isolated `aura_test_resume5` database, including the new worker/receipt/Full Kill wiring regression, and 14 web unit tests passed. OpenAPI drift checks and the production frontend build passed. No browser end-to-end run, real provider, broker adapter, or development-database restore drill was performed. This is local integration validation only.
 ## Explicit assumptions and limitations
 
 `FIFO_FEE_EXPENSE_IMMEDIATE_V1` is SHADOW-only and does not settle OD-11. Foundation decimals support at most eight fractional places and absolute values below 10^12; unsupported precision is rejected. Tests provide quantity increments, fees and price bounds. Real capabilities and approved production accounting rules are still required.
 
-Conflicting identities, out-of-bound fixture fills and oversells raise an error and roll back; this is not a production durable receipt quarantine. No active execution endpoint, mode-switch endpoint, live adapter or model tool exists. Full Kill release is unavailable until dependency/reconciliation evidence can be checked. No cancellation capability is fabricated.
+Direct fixture fill operations can reject conflicting or out-of-bound inputs; the S05 receipt ingestion path instead records invalid committed fixture receipts in quarantine for controlled redrive. This is not production broker reconciliation. No active execution endpoint, mode-switch endpoint, live adapter or model tool exists. Full Kill release remains unavailable until dependency/reconciliation evidence can be checked. No cancellation capability is fabricated.
 
 ## Next slice
 
@@ -67,7 +71,7 @@ Persist version/horizon-specific qualification and admission races; build durabl
 
 Continue the synthetic-fixture pass from the S04 integration candidate. Remaining branch migrations must be re-chained onto the integration head, with each retained worktree reviewed and tested before merging.
 
-1. Finish the remaining open branches: S05 execution receipts, S07 Parquet/DuckDB data store, S08 feature snapshots.
+1. Finish the remaining open branches: S07 Parquet/DuckDB data store and S08 feature snapshots; S05 fixture receipts are integrated, but production adapter semantics remain open.
 2. S09 Strategy Pods page on persisted scopes; S10 ledger corrections and rebuild; S11 health gates and the System health page.
 3. S12 market data page and replay clock; S13 regime components; S14 scanner and candidates.
 4. S15 deterministic SHADOW simulator with fault injection; S16 Knowledge Library v0; S17 the Observe cycle and a Discovery page.

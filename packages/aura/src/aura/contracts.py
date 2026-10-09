@@ -125,3 +125,46 @@ class JobCommandResult(Contract):
 
     job_id: str
     version: int
+
+
+QuarantineReason = Literal[
+    "CONFLICTING_DUPLICATE",
+    "UNSUPPORTED_REVISION",
+    "UNKNOWN_ACCOUNT",
+    "ORPHAN",
+    "OUT_OF_BOUNDS",
+    "LEDGER_REJECTED",
+]
+
+
+class QuarantineRecord(Contract):
+    """An open execution quarantine entry and its receipt identity (SHADOW fixtures only).
+
+    A null portfolio_id means the receipt could not be attributed, which blocks new
+    reservations for every portfolio. Redrive with the current version.
+    """
+
+    id: str
+    receipt_id: str
+    portfolio_id: str | None
+    reason: QuarantineReason
+    detail: str
+    version: int
+    created_at: str
+    adapter_id: str
+    adapter_account_id: str
+    execution_id: str
+    revision: int
+    order_id: str
+
+
+class RedriveResult(Contract):
+    """Outcome of a quarantine redrive. A repeated command_id returns the recorded outcome."""
+
+    quarantine_id: str
+    receipt_id: str
+    outcome: Literal["APPLIED", "STILL_QUARANTINED"]
+    status: Literal["OPEN", "RESOLVED"]
+    version: int
+    reason: QuarantineReason | None
+    journal_id: str | None

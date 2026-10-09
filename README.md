@@ -2,12 +2,12 @@
 
 A single-owner research workspace for US-listed stocks and ETFs. It is designed to scan for trading opportunities, have an AI "investment committee" argue for and against them, and paper-trade the survivors under deterministic risk controls.
 
-> **Status: paused (September 2026).** Aura is not under active development. The foundation described below runs and is tested. The trading intelligence (market data, strategies, AI analysis) exists only as design documents. Aura is paper-only by design, with no code path to a real broker or real money. Nothing here is investment advice or evidence that any strategy works.
+> **Status: development resumed (October 2026; local integration branch).** The working foundation includes deterministic synthetic data, persisted strategy scopes, durable jobs and SHADOW fixture receipt accounting. Real market data, trading strategies and AI analysis are not yet implemented. Aura remains personal, self-hosted, Observe-only and paper-only: no live broker or order-submission endpoint. Nothing here is investment advice or evidence that any strategy works.
 
 ## What's in the repo
 
-- **A runnable foundation:** an authenticated web app, a double-entry accounting ledger, safety controls, event plumbing, 24 backend tests, web unit tests and Playwright browser tests.
-- **A full design package:** an 18-chapter [Design Bible](docs/design-bible/README.md), 23 [architecture decision records](docs/adr/README.md) and 20 [Mermaid diagrams](docs/diagrams/README.md). Together they cover the complete platform: strategy pods, a deterministic market-regime engine, a multi-role AI committee, portfolio and risk management, paper execution and an offline evaluation league.
+- **A runnable foundation:** an authenticated web app, a double-entry accounting ledger, safety controls, event plumbing, 115 Python unit tests, 81 PostgreSQL integration tests, 14 web unit tests and Playwright tests (not rerun in this integration).
+- **A full design package:** an 18-chapter [Design Bible](docs/design-bible/README.md), 24 [architecture decision records](docs/adr/README.md) and 20 [Mermaid diagrams](docs/diagrams/README.md). Together they cover the complete platform: strategy pods, a deterministic market-regime engine, a multi-role AI committee, portfolio and risk management, paper execution and an offline evaluation league.
 
 ## What works
 
@@ -19,12 +19,16 @@ A single-owner research workspace for US-listed stocks and ETFs. It is designed 
 | Safety controls | Persistent, audited **Entry Halt**, which blocks new or larger positions, and **Full Kill**, which blocks all order submissions. Both are driven by idempotent, version-checked owner commands. Re-arming after Full Kill fails closed until real reconciliation checks exist. |
 | Execution primitives (tests only) | Simulated "SHADOW" fills: shared cash and exit reservations, fractional FIFO fills, duplicate and conflicting order IDs. An order with an unknown outcome keeps its capacity reserved instead of being blindly resubmitted. |
 | Events | Transactional outbox with a durable competing-consumer inbox. |
+| Synthetic market data | Deterministic SHA-256-verified fictional US-equity fixture dataset, normalization and point-in-time replay; no real market feed. |
+| Strategy scopes | Versioned development scopes for five unimplemented Pods; owner Suspend/Resume and guarded eligibility, without strategy activation. |
+| Durable execution receipts | SHADOW fixture receipts, single-posting Ledger application, quarantine and audited redrive; no live broker or order-submission endpoint. |
+| Background jobs | Leased, fenced and retried durable jobs with dead letters and owner redrive; no automatic recurring schedule. |
 | Contracts | OpenAPI schema exported from FastAPI, with TypeScript types generated from it. |
 | Operations | Idempotent Windows bootstrap and dev scripts. A backup/restore drill that checks the accounting in a disposable restored copy. |
 
 ## What doesn't exist
 
-There is no market data feed, AI model or broker connection. The five strategy methodologies (Momentum, Breakout, Event/Catalyst, Mean Reversion, Swing Trend) are registered but unimplemented. The app runs in Observe mode only and has no order-submission endpoint, so it cannot place a trade, not even a simulated one. [Implementation status](docs/IMPLEMENTATION_STATUS.md) lists the gaps module by module.
+There is no real market-data feed, AI model or broker connection; synthetic fixture replay is available for development only. The five strategy methodologies (Momentum, Breakout, Event/Catalyst, Mean Reversion, Swing Trend) are registered but unimplemented. The app runs in Observe mode only and has no order-submission endpoint, so it cannot place a trade, not even a simulated one. [Implementation status](docs/IMPLEMENTATION_STATUS.md) lists the gaps module by module.
 
 ## Architecture
 
@@ -39,7 +43,7 @@ flowchart TD
   Controls --> PG[(PostgreSQL 17)]
   Ledger --> PG
   PG --> Outbox[Transactional outbox]
-  Outbox --> Worker[Inbox acknowledgement worker]
+  Outbox --> Worker[Inbox, receipts and jobs worker]
   API -->|SSE invalidation / refresh| Web
   Tests[Explicit fixture tests] --> Shadow[SHADOW reservations / fractional fills]
   Shadow --> PG
@@ -102,4 +106,4 @@ uv run python scripts/backup_restore_check.py  # Restore drill (native PostgreSQ
 
 ## License
 
-[MIT](LICENSE)
+Aura is open source under the [MIT License](LICENSE). Its terms permit use, modification, redistribution and commercial use when the copyright and license notice are preserved. This personal research project is provided as-is, without promised hosting, support, or trading results.

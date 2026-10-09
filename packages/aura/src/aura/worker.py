@@ -2,7 +2,8 @@
 
 No high-watermark cursor is used: commit order may differ from sequence order.
 Inbox writes and consumption commit together, and locked events prevent duplicate
-local acknowledgement across competing workers.
+local acknowledgement across competing workers. Committed SHADOW fixture fill receipts
+are also processed exactly once; no orders are submitted.
 
 Each tick then claims and runs jobs that code enqueued explicitly (aura.orchestration).
 The worker creates no jobs itself: no recurring schedule is enabled (OD-03). Entry Halt
@@ -19,6 +20,7 @@ from sqlalchemy.orm import Session
 
 from aura.config import Settings
 from aura.events import Event, Inbox
+from aura.execution import apply_received_fills
 from aura.orchestration.registry import REGISTRY
 from aura.orchestration.runner import (
     BACKOFF_DEV,
@@ -55,9 +57,11 @@ def identity() -> str:
 
 
 def tick(db: Database, runner: JobRunner, *, jobs_per_tick: int) -> tuple[int, list[Outcome]]:
-    """Acknowledge one inbox batch, then run up to `jobs_per_tick` claimable jobs."""
+    """Acknowledge, apply committed receipts, then run up to `jobs_per_tick` claimable jobs."""
     with db.transaction() as session:
         acknowledged = acknowledge_batch(session)
+    with db.transaction() as session:
+        apply_received_fills(session)
     return acknowledged, runner.run_available(jobs_per_tick)
 
 
