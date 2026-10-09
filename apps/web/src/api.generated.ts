@@ -178,6 +178,97 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/strategies/scopes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Strategy Scopes */
+        get: operations["list_strategy_scopes_api_strategies_scopes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/scopes/{scope_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Strategy Scope */
+        get: operations["get_strategy_scope_api_strategies_scopes__scope_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/scopes/{scope_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Strategy Scope History */
+        get: operations["strategy_scope_history_api_strategies_scopes__scope_id__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/scopes/{scope_id}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Suspend Strategy Scope
+         * @description Suspend from any state: blocks new or increasing exposure, advances the generation.
+         */
+        post: operations["suspend_strategy_scope_api_strategies_scopes__scope_id__suspend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/scopes/{scope_id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resume Strategy Scope
+         * @description Resume a suspended scope to DEVELOPMENT only.
+         */
+        post: operations["resume_strategy_scope_api_strategies_scopes__scope_id__resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -447,6 +538,160 @@ export interface components {
             status: string;
             /** Implementation */
             implementation: string;
+        };
+        /**
+         * StrategyHorizon
+         * @description A horizon specification; UNAPPROVED until its definition is decided (OD-03).
+         */
+        StrategyHorizon: {
+            /** Id */
+            id: string;
+            /** Version */
+            version: number;
+            /**
+             * Approval
+             * @enum {string}
+             */
+            approval: "UNAPPROVED" | "APPROVED";
+            /** Decision Ref */
+            decision_ref: string;
+            /** Description */
+            description: string;
+        };
+        /**
+         * StrategyPodVersion
+         * @description A Pod methodology version. Version 0 is the unimplemented placeholder.
+         */
+        StrategyPodVersion: {
+            /** Id */
+            id: string;
+            /** Version */
+            version: number;
+            /**
+             * Name
+             * @enum {string}
+             */
+            name: "MOMENTUM" | "BREAKOUT" | "EVENT_CATALYST" | "MEAN_REVERSION" | "SWING_TREND";
+            /** Display Name */
+            display_name: string;
+            /**
+             * Implementation Status
+             * @enum {string}
+             */
+            implementation_status: "UNIMPLEMENTED" | "IMPLEMENTED" | "VERIFIED";
+        };
+        /**
+         * StrategyScope
+         * @description Lifecycle state of one Pod version and horizon version.
+         *
+         *     Every status change advances `version` and `eligibility_generation`. `universe_ref` is
+         *     null while no universe is approved (OD-02).
+         */
+        StrategyScope: {
+            /** Id */
+            id: string;
+            pod: components["schemas"]["StrategyPodVersion"];
+            horizon: components["schemas"]["StrategyHorizon"];
+            /** Universe Ref */
+            universe_ref: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "DEVELOPMENT" | "BACKTESTING" | "PAPER_SHADOW" | "QUALIFIED" | "ACTIVE_PAPER" | "SUSPENDED";
+            /** Previous State */
+            previous_state: ("DEVELOPMENT" | "BACKTESTING" | "PAPER_SHADOW" | "QUALIFIED" | "ACTIVE_PAPER" | "SUSPENDED") | null;
+            /** Version */
+            version: number;
+            /** Eligibility Generation */
+            eligibility_generation: number;
+            /** Qualification Id */
+            qualification_id: string | null;
+            /** Activation Id */
+            activation_id: string | null;
+            /** Reason */
+            reason: string;
+            /** Actor */
+            actor: string;
+            /**
+             * Changed At
+             * Format: date-time
+             */
+            changed_at: string;
+        };
+        /**
+         * StrategyScopeCommand
+         * @description Suspend or Resume. Replaying a command_id returns the recorded result; reusing it with
+         *     a different body, scope or command is refused with 409.
+         */
+        StrategyScopeCommand: {
+            /**
+             * Command Id
+             * Format: uuid
+             */
+            command_id: string;
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * StrategyScopeStatus
+         * @description The state a Suspend or Resume command recorded.
+         */
+        StrategyScopeStatus: {
+            /** Scope Id */
+            scope_id: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "DEVELOPMENT" | "BACKTESTING" | "PAPER_SHADOW" | "QUALIFIED" | "ACTIVE_PAPER" | "SUSPENDED";
+            /** Version */
+            version: number;
+            /** Eligibility Generation */
+            eligibility_generation: number;
+        };
+        /**
+         * StrategyStatusChange
+         * @description One STRATEGY_STATUS_CHANGED audit event of a scope. History lists oldest first.
+         */
+        StrategyStatusChange: {
+            /** Sequence */
+            sequence: number;
+            /** Event Id */
+            event_id: string;
+            /** Command Id */
+            command_id: string;
+            /** Scope Id */
+            scope_id: string;
+            /**
+             * Prior State
+             * @enum {string}
+             */
+            prior_state: "DEVELOPMENT" | "BACKTESTING" | "PAPER_SHADOW" | "QUALIFIED" | "ACTIVE_PAPER" | "SUSPENDED";
+            /**
+             * New State
+             * @enum {string}
+             */
+            new_state: "DEVELOPMENT" | "BACKTESTING" | "PAPER_SHADOW" | "QUALIFIED" | "ACTIVE_PAPER" | "SUSPENDED";
+            /** Prior Version */
+            prior_version: number;
+            /** Version */
+            version: number;
+            /** Prior Generation */
+            prior_generation: number;
+            /** Generation */
+            generation: number;
+            /** Actor */
+            actor: string;
+            /** Reason */
+            reason: string;
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -754,6 +999,158 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    list_strategy_scopes_api_strategies_scopes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyScope"][];
+                };
+            };
+        };
+    };
+    get_strategy_scope_api_strategies_scopes__scope_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scope_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyScope"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    strategy_scope_history_api_strategies_scopes__scope_id__history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scope_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyStatusChange"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suspend_strategy_scope_api_strategies_scopes__scope_id__suspend_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scope_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StrategyScopeCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyScopeStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resume_strategy_scope_api_strategies_scopes__scope_id__resume_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scope_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StrategyScopeCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyScopeStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

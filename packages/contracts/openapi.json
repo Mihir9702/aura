@@ -339,6 +339,218 @@
           }
         }
       }
+    },
+    "/api/strategies/scopes": {
+      "get": {
+        "summary": "List Strategy Scopes",
+        "operationId": "list_strategy_scopes_api_strategies_scopes_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StrategyScope"
+                  },
+                  "type": "array",
+                  "title": "Response List Strategy Scopes Api Strategies Scopes Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strategies/scopes/{scope_id}": {
+      "get": {
+        "summary": "Get Strategy Scope",
+        "operationId": "get_strategy_scope_api_strategies_scopes__scope_id__get",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Scope Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyScope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strategies/scopes/{scope_id}/history": {
+      "get": {
+        "summary": "Strategy Scope History",
+        "operationId": "strategy_scope_history_api_strategies_scopes__scope_id__history_get",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Scope Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StrategyStatusChange"
+                  },
+                  "title": "Response Strategy Scope History Api Strategies Scopes  Scope Id  History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strategies/scopes/{scope_id}/suspend": {
+      "post": {
+        "summary": "Suspend Strategy Scope",
+        "description": "Suspend from any state: blocks new or increasing exposure, advances the generation.",
+        "operationId": "suspend_strategy_scope_api_strategies_scopes__scope_id__suspend_post",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Scope Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StrategyScopeCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyScopeStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strategies/scopes/{scope_id}/resume": {
+      "post": {
+        "summary": "Resume Strategy Scope",
+        "description": "Resume a suspended scope to DEVELOPMENT only.",
+        "operationId": "resume_strategy_scope_api_strategies_scopes__scope_id__resume_post",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Scope Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StrategyScopeCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyScopeStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1006,6 +1218,369 @@
           "implementation"
         ],
         "title": "Strategy"
+      },
+      "StrategyHorizon": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "approval": {
+            "type": "string",
+            "enum": [
+              "UNAPPROVED",
+              "APPROVED"
+            ],
+            "title": "Approval"
+          },
+          "decision_ref": {
+            "type": "string",
+            "title": "Decision Ref"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "approval",
+          "decision_ref",
+          "description"
+        ],
+        "title": "StrategyHorizon",
+        "description": "A horizon specification; UNAPPROVED until its definition is decided (OD-03)."
+      },
+      "StrategyPodVersion": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "name": {
+            "type": "string",
+            "enum": [
+              "MOMENTUM",
+              "BREAKOUT",
+              "EVENT_CATALYST",
+              "MEAN_REVERSION",
+              "SWING_TREND"
+            ],
+            "title": "Name"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "implementation_status": {
+            "type": "string",
+            "enum": [
+              "UNIMPLEMENTED",
+              "IMPLEMENTED",
+              "VERIFIED"
+            ],
+            "title": "Implementation Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "name",
+          "display_name",
+          "implementation_status"
+        ],
+        "title": "StrategyPodVersion",
+        "description": "A Pod methodology version. Version 0 is the unimplemented placeholder."
+      },
+      "StrategyScope": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "pod": {
+            "$ref": "#/components/schemas/StrategyPodVersion"
+          },
+          "horizon": {
+            "$ref": "#/components/schemas/StrategyHorizon"
+          },
+          "universe_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Universe Ref"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "DEVELOPMENT",
+              "BACKTESTING",
+              "PAPER_SHADOW",
+              "QUALIFIED",
+              "ACTIVE_PAPER",
+              "SUSPENDED"
+            ],
+            "title": "State"
+          },
+          "previous_state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "DEVELOPMENT",
+                  "BACKTESTING",
+                  "PAPER_SHADOW",
+                  "QUALIFIED",
+                  "ACTIVE_PAPER",
+                  "SUSPENDED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous State"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "eligibility_generation": {
+            "type": "integer",
+            "title": "Eligibility Generation"
+          },
+          "qualification_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qualification Id"
+          },
+          "activation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activation Id"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "actor": {
+            "type": "string",
+            "title": "Actor"
+          },
+          "changed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Changed At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "pod",
+          "horizon",
+          "universe_ref",
+          "state",
+          "previous_state",
+          "version",
+          "eligibility_generation",
+          "qualification_id",
+          "activation_id",
+          "reason",
+          "actor",
+          "changed_at"
+        ],
+        "title": "StrategyScope",
+        "description": "Lifecycle state of one Pod version and horizon version.\n\nEvery status change advances `version` and `eligibility_generation`. `universe_ref` is\nnull while no universe is approved (OD-02)."
+      },
+      "StrategyScopeCommand": {
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Command Id"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 4,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "command_id",
+          "expected_version",
+          "reason"
+        ],
+        "title": "StrategyScopeCommand",
+        "description": "Suspend or Resume. Replaying a command_id returns the recorded result; reusing it with\na different body, scope or command is refused with 409."
+      },
+      "StrategyScopeStatus": {
+        "properties": {
+          "scope_id": {
+            "type": "string",
+            "title": "Scope Id"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "DEVELOPMENT",
+              "BACKTESTING",
+              "PAPER_SHADOW",
+              "QUALIFIED",
+              "ACTIVE_PAPER",
+              "SUSPENDED"
+            ],
+            "title": "State"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "eligibility_generation": {
+            "type": "integer",
+            "title": "Eligibility Generation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scope_id",
+          "state",
+          "version",
+          "eligibility_generation"
+        ],
+        "title": "StrategyScopeStatus",
+        "description": "The state a Suspend or Resume command recorded."
+      },
+      "StrategyStatusChange": {
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "command_id": {
+            "type": "string",
+            "title": "Command Id"
+          },
+          "scope_id": {
+            "type": "string",
+            "title": "Scope Id"
+          },
+          "prior_state": {
+            "type": "string",
+            "enum": [
+              "DEVELOPMENT",
+              "BACKTESTING",
+              "PAPER_SHADOW",
+              "QUALIFIED",
+              "ACTIVE_PAPER",
+              "SUSPENDED"
+            ],
+            "title": "Prior State"
+          },
+          "new_state": {
+            "type": "string",
+            "enum": [
+              "DEVELOPMENT",
+              "BACKTESTING",
+              "PAPER_SHADOW",
+              "QUALIFIED",
+              "ACTIVE_PAPER",
+              "SUSPENDED"
+            ],
+            "title": "New State"
+          },
+          "prior_version": {
+            "type": "integer",
+            "title": "Prior Version"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "prior_generation": {
+            "type": "integer",
+            "title": "Prior Generation"
+          },
+          "generation": {
+            "type": "integer",
+            "title": "Generation"
+          },
+          "actor": {
+            "type": "string",
+            "title": "Actor"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Recorded At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sequence",
+          "event_id",
+          "command_id",
+          "scope_id",
+          "prior_state",
+          "new_state",
+          "prior_version",
+          "version",
+          "prior_generation",
+          "generation",
+          "actor",
+          "reason",
+          "recorded_at"
+        ],
+        "title": "StrategyStatusChange",
+        "description": "One STRATEGY_STATUS_CHANGED audit event of a scope. History lists oldest first."
       },
       "ValidationError": {
         "properties": {

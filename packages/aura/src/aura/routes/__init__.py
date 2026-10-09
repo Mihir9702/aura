@@ -7,7 +7,17 @@ commands carry command_id and expected_version and are audited through the outbo
 
 from fastapi import APIRouter
 
-from aura.routes import controls, events, health, jobs, journals, overview, session, stream
+from aura.routes import (
+    controls,
+    events,
+    health,
+    jobs,
+    journals,
+    overview,
+    session,
+    strategies,
+    stream,
+)
 
 ROUTERS: tuple[APIRouter, ...] = (
     health.router,
@@ -18,4 +28,5 @@ ROUTERS: tuple[APIRouter, ...] = (
     controls.router,
     jobs.router,
     stream.router,
+    strategies.router,
 )
