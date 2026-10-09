@@ -101,8 +101,8 @@ uv run python scripts/backup_restore_check.py  # Restore drill (native PostgreSQ
 | `docs` | Design Bible, ADRs, diagrams, status |
 | [`Aura_Seed.md`](Aura_Seed.md) | The original product brief |
 
-## Copyright and reuse
+## License
 
-Aura is source-visible, but the current project is **not released under an open-source license**. See [COPYRIGHT.md](COPYRIGHT.md).
+Aura is open source under the [MIT License](LICENSE). You can use, study, modify, redistribute, and sell copies, subject to preserving the required copyright and license notice.
 
-Earlier public revisions were released under MIT; rights already granted for those revisions remain in effect.
+Aura is a personal, self-hosted, paper-only research project. It is provided as-is without warranty, managed hosting, or promised support. Nothing in this project is investment advice. Third-party dependencies remain under their respective licenses.
